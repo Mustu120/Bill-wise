@@ -8,6 +8,10 @@ The platform supports four user roles: Project Manager, Team Member, Finance, an
 
 ## Recent Changes (November 2025)
 
+- **Tasks Page implemented**: Complete task management system with My Tasks/All Tasks views, search, and filtering
+- **Task creation and editing**: Multi-tabbed form with Description, Timesheets, and Task Info tabs
+- **File upload support**: Tasks can include image attachments stored in /uploads directory
+- **Timesheet tracking**: Full CRUD operations for tracking time logged by employees on tasks
 - **Removed public signup**: Users can no longer self-register; only admins can create accounts
 - **Admin-only user management**: Implemented dedicated admin dashboard for user creation and role management
 - **Role-based routing**: Admins are redirected to `/admin`, regular users to `/dashboard` after login
@@ -98,10 +102,25 @@ Preferred communication style: Simple, everyday language.
 - Role types: project_manager, team_member, finance, admin
 - Enforced constraints: email uniqueness, password complexity
 
+**Tasks Table:**
+- Primary key: UUID (auto-generated)
+- Fields: title, description, status, priority, dueDate, estimatedHours, assignedTo, createdBy, imageUrl
+- Status types: pending, in_progress, completed, on_hold
+- Priority types: low, medium, high, urgent
+- Foreign keys: assignedTo (references users), createdBy (references users)
+
+**Timesheets Table:**
+- Primary key: UUID (auto-generated)
+- Fields: taskId, employeeId, timeLogged, createdAt
+- Foreign keys: taskId (references tasks), employeeId (references users)
+- Constraint: timeLogged must be greater than 0
+
 **Validation Rules:**
 - Password: minimum 8 characters, requires uppercase letter and number
 - Email: standard email format validation
 - Name: minimum 2 characters
+- Task title: minimum 3 characters
+- Timesheet hours: must be greater than 0
 
 ### External Dependencies
 
@@ -125,6 +144,11 @@ Preferred communication style: Simple, everyday language.
 - jsonwebtoken for JWT creation and verification
 - bcrypt for password hashing
 - cookie-parser for cookie handling middleware
+
+**File Upload:**
+- multer for multipart form data handling
+- Static file serving for uploaded images via /uploads directory
+- Authentication required for file upload endpoint
 
 **Build & Bundling:**
 - Vite with React plugin for frontend builds
