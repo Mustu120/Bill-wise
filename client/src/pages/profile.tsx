@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutGrid, Folder, CheckSquare, BarChart2, Settings, User, Upload, Lock, Save, X, Edit2, Trash2 } from 'lucide-react';
+import { Upload, Lock, Save, X, Edit2, Trash2 } from 'lucide-react';
+import { AppLayout } from '@/components/AppLayout';
 
 // Mock API calls (replace with actual axios calls)
 const api = {
@@ -34,84 +35,6 @@ const api = {
   updatePreferences: async (prefs) => ({ success: true, data: prefs }),
   changePassword: async (passwords) => ({ success: true }),
   deleteAccount: async () => ({ success: true })
-};
-
-const Sidebar = ({ activeItem, userData }) => {
-  const menuItems = [
-    { icon: LayoutGrid, label: 'Dashboard', path: '/dashboard' },
-    { icon: Folder, label: 'Projects', path: '/projects' },
-    { icon: CheckSquare, label: 'Tasks', path: '/tasks' },
-    { icon: BarChart2, label: 'Analytics', path: '/analytics' },
-    { icon: Settings, label: 'Settings', path: '/settings' },
-    { icon: User, label: 'My Profile', path: '/profile' }
-  ];
-
-  const getInitials = (name) => {
-    return name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'JD';
-  };
-
-  return (
-    <div className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-200 flex flex-col">
-      {/* Brand Section */}
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
-            <div className="text-white font-bold text-xl">F</div>
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-gray-900">FlowChain</h1>
-            <p className="text-xs text-gray-500">Bill Management</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Menu Items */}
-      <nav className="flex-1 p-4 space-y-1">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeItem === item.label;
-          return (
-            <button
-              key={item.label}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                isActive
-                  ? 'bg-purple-600 text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              <Icon size={20} />
-              <span className="font-medium">{item.label}</span>
-            </button>
-          );
-        })}
-      </nav>
-
-      {/* User Info Section */}
-      <div className="p-4 border-t border-gray-200">
-        <div className="flex items-center gap-3">
-          {userData?.profile_image ? (
-            <img
-              src={userData.profile_image}
-              alt={userData.full_name}
-              className="w-10 h-10 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-              {getInitials(userData?.full_name)}
-            </div>
-          )}
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-gray-900 truncate">
-              {userData?.full_name || 'John Doe'}
-            </p>
-            <p className="text-xs text-gray-500 truncate">
-              {userData?.email || 'john@example.com'}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 };
 
 const ChangePasswordModal = ({ isOpen, onClose, onSubmit }) => {
@@ -714,17 +637,17 @@ export default function MyProfile() {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-xl text-gray-600">Loading...</div>
-      </div>
+      <AppLayout>
+        <div className="flex h-screen items-center justify-center">
+          <div className="text-xl text-muted-foreground">Loading...</div>
+        </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <Sidebar activeItem="My Profile" userData={userData} />
-      
-      <div className="flex-1 ml-64 overflow-y-auto">
+    <AppLayout>
+      <div className="h-screen overflow-y-auto bg-background">
         <div className="max-w-6xl mx-auto p-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">My Profile</h1>
           
@@ -755,13 +678,13 @@ export default function MyProfile() {
             />
           </div>
         </div>
+        
+        <ChangePasswordModal
+          isOpen={showPasswordModal}
+          onClose={() => setShowPasswordModal(false)}
+          onSubmit={handlePasswordChange}
+        />
       </div>
-
-      <ChangePasswordModal
-        isOpen={showPasswordModal}
-        onClose={() => setShowPasswordModal(false)}
-        onSubmit={handlePasswordChange}
-      />
-    </div>
+    </AppLayout>
   );
 }

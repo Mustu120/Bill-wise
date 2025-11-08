@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Search, Plus, Calendar, User, Tag } from "lucide-react";
 import { TaskForm } from "@/components/task-form";
+import { AppLayout } from "@/components/AppLayout";
 import type { Task, UserWithoutPassword } from "@shared/schema";
 import { format } from "date-fns";
 
@@ -57,16 +58,19 @@ export default function TasksPage() {
 
   if (isFormOpen) {
     return (
-      <TaskForm
-        task={selectedTask}
-        onClose={handleCloseForm}
-      />
+      <AppLayout>
+        <TaskForm
+          task={selectedTask}
+          onClose={handleCloseForm}
+        />
+      </AppLayout>
     );
   }
 
   return (
-    <div className="h-screen overflow-hidden bg-background">
-      <div className="p-6 space-y-6 h-full overflow-auto">
+    <AppLayout>
+      <div className="h-screen overflow-auto bg-background">
+        <div className="p-6 space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold" data-testid="heading-tasks">Tasks</h1>
@@ -185,7 +189,8 @@ export default function TasksPage() {
             ))}
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </AppLayout>
   );
 }

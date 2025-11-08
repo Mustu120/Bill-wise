@@ -4,6 +4,7 @@ import { Folder, CheckCircle, Clock, TrendingUp } from "lucide-react";
 import { KpiCard } from "@/components/KpiCard";
 import { FilterBar } from "@/components/FilterBar";
 import { BarChartCard, PieChartCard, DonutChartCard, LineChartCard, AreaChartCard } from "@/components/Charts";
+import { AppLayout } from "@/components/AppLayout";
 
 export default function AnalyticsPage() {
   const [filters, setFilters] = useState({
@@ -53,8 +54,9 @@ export default function AnalyticsPage() {
   };
 
   return (
-    <div className="h-full overflow-auto">
-      <div className="container mx-auto p-6 space-y-6">
+    <AppLayout>
+      <div className="h-screen overflow-auto">
+        <div className="container mx-auto p-6 space-y-6">
         <div>
           <h1 className="text-3xl font-bold" data-testid="page-title">Analytics Dashboard</h1>
           <p className="text-muted-foreground">Monitor project performance and key metrics</p>
@@ -155,7 +157,8 @@ export default function AnalyticsPage() {
             testId="chart-task-status"
           />
         </div>
+        </div>
       </div>
-    </div>
+    </AppLayout>
   );
 }
