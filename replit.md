@@ -12,13 +12,20 @@ The platform supports four user roles: Project Manager, Team Member, Finance, an
 - **Admin-only user management**: Implemented dedicated admin dashboard for user creation and role management
 - **Role-based routing**: Admins are redirected to `/admin`, regular users to `/dashboard` after login
 - **Protected admin routes**: All user management endpoints require admin authentication
+- **Bootstrap flow**: Implemented first-time setup wizard for creating the initial admin account
+- **Database provisioned**: PostgreSQL database is configured and schema is deployed
 
-## Initial Admin Access
+## First-Time Setup
 
-A system administrator account has been created for initial access:
-- **Email**: admin123@gmail.com
-- **Password**: @Admin1212
-- **Dashboard**: After login, admins are automatically redirected to `/admin` where they can create and manage users
+When you first access the application, you'll be prompted to create your administrator account through a bootstrap setup wizard:
+
+1. Navigate to the login page
+2. The system will detect no users exist and show "Setup Administrator" form
+3. Enter your name, email, and password (minimum 8 characters, must include uppercase letter and number)
+4. Click "Create Admin Account"
+5. You'll be automatically logged in and redirected to the admin dashboard
+
+**Bootstrap Security**: The bootstrap endpoint is protected - it only works when no users exist in the database. Once the first admin is created, the bootstrap route becomes unavailable.
 
 To create additional users, log in as admin and use the "Create User" button in the admin dashboard.
 
