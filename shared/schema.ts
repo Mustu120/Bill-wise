@@ -204,10 +204,10 @@ export const salesOrders = pgTable("sales_orders", {
 export const insertSalesOrderSchema = createInsertSchema(salesOrders).omit({
   id: true,
   createdAt: true,
-  untaxedAmount: true,
-  totalAmount: true,
 }).extend({
   code: z.string().min(1, 'Order code is required'),
+  untaxedAmount: z.coerce.number().min(0).optional(),
+  totalAmount: z.coerce.number().min(0).optional(),
 });
 
 export const selectSalesOrderSchema = createSelectSchema(salesOrders);
@@ -253,10 +253,10 @@ export const purchaseOrders = pgTable("purchase_orders", {
 export const insertPurchaseOrderSchema = createInsertSchema(purchaseOrders).omit({
   id: true,
   createdAt: true,
-  untaxedAmount: true,
-  totalAmount: true,
 }).extend({
   code: z.string().min(1, 'Order code is required'),
+  untaxedAmount: z.coerce.number().min(0).optional(),
+  totalAmount: z.coerce.number().min(0).optional(),
 });
 
 export const selectPurchaseOrderSchema = createSelectSchema(purchaseOrders);
@@ -303,10 +303,10 @@ export const invoices = pgTable("invoices", {
 export const insertInvoiceSchema = createInsertSchema(invoices).omit({
   id: true,
   createdAt: true,
-  untaxedAmount: true,
-  totalAmount: true,
 }).extend({
   number: z.string().min(1, 'Invoice number is required'),
+  untaxedAmount: z.coerce.number().min(0).optional(),
+  totalAmount: z.coerce.number().min(0).optional(),
 });
 
 export const selectInvoiceSchema = createSelectSchema(invoices);
