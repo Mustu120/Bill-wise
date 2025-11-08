@@ -20,7 +20,7 @@ const Sidebar = ({ activeTab, setActiveTab, collapsed, setCollapsed }) => {
   ];
 
   return (
-    <div className={${collapsed ? 'w-20' : 'w-64'} bg-white border-r border-gray-200 flex flex-col transition-all duration-300 h-screen fixed left-0 top-0}>
+    <div className={`${collapsed ? 'w-20' : 'w-64'} bg-white border-r border-gray-200 flex flex-col transition-all duration-300 h-screen fixed left-0 top-0`}>
       {/* Brand Section */}
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
@@ -744,7 +744,7 @@ const App = () => {
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} collapsed={collapsed} setCollapsed={setCollapsed} />
-      <div className={flex-1 ${collapsed ? 'ml-20' : 'ml-64'} transition-all duration-300}>
+      <div className={`flex-1 ${collapsed ? 'ml-20' : 'ml-64'} transition-all duration-300`}>
         {activeTab === 'settings' ? (
           <SettingsModule />
         ) : (
