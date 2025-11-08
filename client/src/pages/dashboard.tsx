@@ -408,7 +408,10 @@ export default function Dashboard() {
                   {sidebarItems.map((item) => (
                     <SidebarMenuItem key={item.label}>
                       <SidebarMenuButton
-                        onClick={() => setActiveSidebarItem(item.label)}
+                        onClick={() => {
+                          setActiveSidebarItem(item.label);
+                          setLocation(item.path);
+                        }}
                         isActive={activeSidebarItem === item.label}
                         data-testid={`button-nav-${item.label.toLowerCase().replace(' ', '-')}`}
                       >
