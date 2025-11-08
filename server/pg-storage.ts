@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "./db";
-import { users, projects } from "@shared/schema";
-import type { User, InsertUser, UserWithoutPassword, Project, InsertProject } from "@shared/schema";
+import { users, projects, tasks, timesheets } from "@shared/schema";
+import type { User, InsertUser, UserWithoutPassword, Project, InsertProject, Task, InsertTask, Timesheet, InsertTimesheet } from "@shared/schema";
 import type { IStorage } from "./storage";
 
 export class PgStorage implements IStorage {
@@ -75,6 +75,64 @@ export class PgStorage implements IStorage {
 
   async deleteProject(id: string): Promise<boolean> {
     const result = await db.delete(projects).where(eq(projects.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async getTask(id: string): Promise<Task | undefined> {
+    const result = await db.select().from(tasks).where(eq(tasks.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getAllTasks(): Promise<Task[]> {
+    const result = await db.select().from(tasks);
+    return result;
+  }
+
+  async getTasksByAssignee(assigneeId: string): Promise<Task[]> {
+    const result = await db.select().from(tasks).where(eq(tasks.assigneeId, assigneeId));
+    return result;
+  }
+
+  async createTask(insertTask: InsertTask): Promise<Task> {
+    const result = await db.insert(tasks).values(insertTask).returning();
+    return result[0];
+  }
+
+  async updateTask(id: string, updateData: Partial<InsertTask>): Promise<Task | undefined> {
+    const result = await db
+      .update(tasks)
+      .set(updateData)
+      .where(eq(tasks.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteTask(id: string): Promise<boolean> {
+    const result = await db.delete(tasks).where(eq(tasks.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async getTimesheetsByTask(taskId: string): Promise<Timesheet[]> {
+    const result = await db.select().from(timesheets).where(eq(timesheets.taskId, taskId));
+    return result;
+  }
+
+  async createTimesheet(insertTimesheet: InsertTimesheet): Promise<Timesheet> {
+    const result = await db.insert(timesheets).values(insertTimesheet).returning();
+    return result[0];
+  }
+
+  async updateTimesheet(id: string, updateData: Partial<InsertTimesheet>): Promise<Timesheet | undefined> {
+    const result = await db
+      .update(timesheets)
+      .set(updateData)
+      .where(eq(timesheets.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteTimesheet(id: string): Promise<boolean> {
+    const result = await db.delete(timesheets).where(eq(timesheets.id, id)).returning();
     return result.length > 0;
   }
 }

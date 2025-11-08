@@ -63,3 +63,48 @@ export const selectProjectSchema = createSelectSchema(projects);
 
 export type InsertProject = z.infer<typeof insertProjectSchema>;
 export type Project = typeof projects.$inferSelect;
+
+export const tasks = pgTable("tasks", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  taskName: text("task_name").notNull(),
+  assigneeId: varchar("assignee_id").references(() => users.id),
+  projectId: varchar("project_id").references(() => projects.id),
+  tags: text("tags").array(),
+  deadline: timestamp("deadline"),
+  description: text("description"),
+  imageUrl: text("image_url"),
+  lastModifiedBy: varchar("last_modified_by").references(() => users.id),
+  lastModifiedOn: timestamp("last_modified_on").default(sql`CURRENT_TIMESTAMP`),
+  totalHours: integer("total_hours").default(0),
+});
+
+export const insertTaskSchema = createInsertSchema(tasks).omit({
+  id: true,
+  lastModifiedOn: true,
+}).extend({
+  taskName: z.string().min(1, 'Task name is required'),
+  deadline: z.coerce.date().optional(),
+});
+
+export const selectTaskSchema = createSelectSchema(tasks);
+
+export type InsertTask = z.infer<typeof insertTaskSchema>;
+export type Task = typeof tasks.$inferSelect;
+
+export const timesheets = pgTable("timesheets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  taskId: varchar("task_id").references(() => tasks.id).notNull(),
+  employeeId: varchar("employee_id").references(() => users.id).notNull(),
+  timeLogged: integer("time_logged").notNull().default(0),
+});
+
+export const insertTimesheetSchema = createInsertSchema(timesheets).omit({
+  id: true,
+}).extend({
+  timeLogged: z.number().min(0, 'Time logged must be non-negative'),
+});
+
+export const selectTimesheetSchema = createSelectSchema(timesheets);
+
+export type InsertTimesheet = z.infer<typeof insertTimesheetSchema>;
+export type Timesheet = typeof timesheets.$inferSelect;
