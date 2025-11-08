@@ -8,6 +8,16 @@ The platform supports four user roles: Project Manager, Team Member, Finance, an
 
 ## Recent Changes (November 2025)
 
+### Migration to Replit Environment (November 8, 2025)
+- **Successfully migrated FlowChain** from Replit Agent to standard Replit environment
+- **Completed PgStorage implementation**: Added all missing CRUD methods for partners, products, taxes, sales orders, purchase orders, invoices, and expenses (40+ methods)
+- **Fixed type conversion issues**: Implemented proper numeric field handling (converting numbers to strings with toFixed() for Drizzle ORM compatibility)
+- **Fixed date handling**: Proper Date object and ISO string normalization for expense records
+- **Updated Zod schemas**: Added proper validation with z.coerce.number() for untaxedAmount and totalAmount in sales/purchase orders and invoices
+- **Deployment configuration**: Configured workflow on port 5000 with proper host settings
+- **Database verified**: PostgreSQL schema successfully pushed and all tables created
+
+### Previous Features
 - **Tasks Page implemented**: Complete task management system with My Tasks/All Tasks views, search, and filtering
 - **Task creation and editing**: Multi-tabbed form with Description, Timesheets, and Task Info tabs
 - **File upload support**: Tasks can include image attachments stored in /uploads directory
@@ -17,7 +27,6 @@ The platform supports four user roles: Project Manager, Team Member, Finance, an
 - **Role-based routing**: Admins are redirected to `/admin`, regular users to `/dashboard` after login
 - **Protected admin routes**: All user management endpoints require admin authentication
 - **Bootstrap flow**: Implemented first-time setup wizard for creating the initial admin account
-- **Database provisioned**: PostgreSQL database is configured and schema is deployed
 
 ## First-Time Setup
 
