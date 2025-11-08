@@ -1,10 +1,11 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, pgEnum, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, pgEnum, integer, timestamp, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
 export const roleEnum = pgEnum("role", ["project_manager", "team_member", "finance", "admin"]);
 export const statusEnum = pgEnum("status", ["Planned", "In Progress", "Completed", "On Hold"]);
+export const taskStatusEnum = pgEnum("task_status", ["Planned", "In Progress", "Completed", "Blocked"]);
 export const priorityEnum = pgEnum("priority", ["High", "Medium", "Low"]);
 
 export const users = pgTable("users", {
@@ -46,12 +47,20 @@ export const projects = pgTable("projects", {
   description: text("description"),
   status: statusEnum("status").notNull().default("Planned"),
   progress: integer("progress").notNull().default(0),
+  cost: integer("cost").notNull().default(0),
+  revenue: integer("revenue").notNull().default(0),
+  totalTasks: integer("total_tasks").notNull().default(0),
+  completedTasks: integer("completed_tasks").notNull().default(0),
 });
 
 export const insertProjectSchema = createInsertSchema(projects).omit({
   id: true,
   budgetSpent: true,
   progress: true,
+  cost: true,
+  revenue: true,
+  totalTasks: true,
+  completedTasks: true,
 }).extend({
   name: z.string().min(1, 'Project name is required'),
   manager: z.string().min(1, 'Project manager is required'),
@@ -76,6 +85,8 @@ export const tasks = pgTable("tasks", {
   lastModifiedBy: varchar("last_modified_by").references(() => users.id),
   lastModifiedOn: timestamp("last_modified_on").default(sql`CURRENT_TIMESTAMP`),
   totalHours: integer("total_hours").default(0),
+  status: taskStatusEnum("status").notNull().default("Planned"),
+  isBillable: boolean("is_billable").notNull().default(true),
 });
 
 export const insertTaskSchema = createInsertSchema(tasks).omit({
@@ -96,6 +107,8 @@ export const timesheets = pgTable("timesheets", {
   taskId: varchar("task_id").references(() => tasks.id).notNull(),
   employeeId: varchar("employee_id").references(() => users.id).notNull(),
   timeLogged: integer("time_logged").notNull().default(0),
+  billable: boolean("billable").notNull().default(true),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
 export const insertTimesheetSchema = createInsertSchema(timesheets).omit({

@@ -482,7 +482,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/timesheets/:id", authenticate, async (req: AuthRequest, res) => {
     try {
-      const { id } = req.params;
+      const { id} = req.params;
       const deleted = await storage.deleteTimesheet(id);
       
       if (!deleted) {
@@ -494,6 +494,86 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error("Delete timesheet error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/analytics/kpis", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const kpis = await storage.getAnalyticsKpis(req.query);
+      return res.json(kpis);
+    } catch (error) {
+      console.error("Get KPIs error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/analytics/project-costs", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const data = await storage.getProjectCosts(req.query);
+      return res.json(data);
+    } catch (error) {
+      console.error("Get project costs error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/analytics/resource-utilization", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const data = await storage.getResourceUtilization(req.query);
+      return res.json(data);
+    } catch (error) {
+      console.error("Get resource utilization error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/analytics/completion", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const data = await storage.getProjectCompletion(req.query);
+      return res.json(data);
+    } catch (error) {
+      console.error("Get project completion error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/analytics/workload-trend", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const data = await storage.getWorkloadTrend(req.query);
+      return res.json(data);
+    } catch (error) {
+      console.error("Get workload trend error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/analytics/revenue-expense", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const data = await storage.getRevenueExpense(req.query);
+      return res.json(data);
+    } catch (error) {
+      console.error("Get revenue expense error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/analytics/task-status", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const data = await storage.getTaskStatusDistribution(req.query);
+      return res.json(data);
+    } catch (error) {
+      console.error("Get task status error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/analytics/filters", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const filters = await storage.getAnalyticsFilters();
+      return res.json(filters);
+    } catch (error) {
+      console.error("Get analytics filters error:", error);
       return res.status(500).json({ error: "Internal server error" });
     }
   });

@@ -9,6 +9,7 @@ import HomePage from "@/pages/home";
 import AdminDashboard from "@/pages/admin-dashboard";
 import Dashboard from "@/pages/dashboard";
 import TasksPage from "@/pages/tasks";
+import AnalyticsPage from "@/pages/analytics";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -19,6 +20,7 @@ function Router() {
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/tasks" component={TasksPage} />
+      <Route path="/analytics" component={AnalyticsPage} />
       <Route component={NotFound} />
     </Switch>
   );
