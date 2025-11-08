@@ -5,25 +5,56 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import Logo from '@/components/Logo';
-import { LogOut } from 'lucide-react';
+import { LogOut, Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
+import { formatRole } from '@/lib/utils';
 
 export default function HomePage() {
   const [, setLocation] = useLocation();
   const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
-    const mockUser = localStorage.getItem('mockUser');
-    if (mockUser) {
-      setUser(JSON.parse(mockUser));
-    } else {
-      setLocation('/login');
+    async function checkAuth() {
+      try {
+        const response = await apiRequest('/api/auth/me');
+        setUser(response.user);
+      } catch (error) {
+        setLocation('/login');
+      } finally {
+        setLoading(false);
+      }
     }
+    checkAuth();
   }, [setLocation]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('mockUser');
-    setLocation('/login');
+  const handleLogout = async () => {
+    try {
+      await apiRequest('/api/auth/logout', {
+        method: 'POST',
+      });
+      toast({
+        title: 'Logged out successfully',
+      });
+      setLocation('/login');
+    } catch (error) {
+      toast({
+        title: 'Logout failed',
+        description: 'An error occurred during logout',
+        variant: 'destructive',
+      });
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   if (!user) {
     return null;
@@ -52,7 +83,7 @@ export default function HomePage() {
                   {user.name}
                 </p>
                 <Badge variant="secondary" className="text-xs" data-testid="badge-user-role">
-                  {user.role}
+                  {formatRole(user.role)}
                 </Badge>
               </div>
             </div>
@@ -75,7 +106,7 @@ export default function HomePage() {
             Welcome, {user.name.split(' ')[0]}!
           </h1>
           <p className="text-lg text-muted-foreground">
-            Role: {user.role}
+            Role: {formatRole(user.role)}
           </p>
         </div>
 
