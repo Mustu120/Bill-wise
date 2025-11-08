@@ -1,0 +1,237 @@
+Build an Analytics Dashboard Page for the project FlowChain – Bill Management System using React (frontend), Node.js + Express (backend), and PostgreSQL (database).
+
+Authentication is already implemented, so assume the logged-in user’s ID and name are available from session or JWT context.
+The UI should match a modern light dashboard design with purple/white accents, rounded KPI cards, and responsive charts using Recharts.
+
+🧭 Page Overview
+
+This Analytics Dashboard provides visual insights into project performance, task progress, and billing efficiency.
+
+The sidebar includes: Dashboard, Projects, Tasks, Analytics, Settings, My Profile
+Highlight Analytics as the active tab.
+
+At the top, include:
+
+Page title: Analytics Dashboard
+
+Inputs for Search, Filter, and Group By options
+
+🎛 Filters (for narrowing down data)
+
+Add a FilterBar component at the top of the dashboard with the following inputs:
+
+Filter Name	Input Type	Description
+Project	Dropdown	Show analytics for a selected project
+Employee / Assignee	Dropdown	Filter by user who logged hours or completed tasks
+Date Range	Dual Date Picker	Filter by time period (uses timesheets.created_at)
+Status	Dropdown	Filter by task status (In Progress, Completed, Blocked)
+Billable Type	Toggle / Dropdown	Filter only Billable or Non-Billable hours
+
+When a filter changes, the frontend calls:
+
+GET /api/analytics/dashboard?project=3&employee=5&start=2025-10-01&end=2025-10-31&status=Completed&billable=true
+
+
+and updates KPIs and charts accordingly.
+
+🧩 Group By (for data aggregation)
+
+Add a Group By dropdown beside the filters to let users choose how data should be summarized:
+
+Group By Option	Description
+Project	Group metrics by project
+Employee	Group hours or workload by employee
+Month	Group analytics by month for trend view
+Status	Group tasks by their current status
+Billable Type	Group hours by billable vs non-billable
+
+Example UI:
+
+Filters: [ Project ▼ ] [ Employee ▼ ] [ Date Range 📅📅 ] [ Status ▼ ] [ Billable ▼ ]  
+Group By: [ Project ▼ ]
+
+
+Changing Group By dynamically updates the visual structure of the charts (e.g., bar charts by employee or month).
+
+📈 KPI Cards (Top Section)
+
+Display four responsive cards in a row:
+
+⿡ Total Projects – total projects from database
+⿢ Tasks Completed – count tasks with status = 'Completed'
+⿣ Total Hours Logged – sum of all timesheets.time_logged
+⿤ Billable vs Non-Billable Hours – numeric + percentage breakdown (e.g., 850 / 400)
+
+Each KPI:
+
+Has a title and icon (use lucide-react icons)
+
+Displays live data from backend via API
+
+📊 Charts (Main Visualization Section)
+
+Use Recharts to create the following visualizations below the KPI cards:
+
+⿡ Project Cost vs Revenue (Bar Chart)
+
+Compare project cost vs revenue.
+
+X-axis: Project names | Y-axis: Amount (₹)
+
+Bars: Green = Revenue, Red = Cost
+
+⿢ Resource Utilization (Pie Chart)
+
+Billable vs Non-Billable hours.
+
+Colors: Purple and Orange
+
+Include percentage labels
+
+⿣ Project Completion Progress (Donut Chart)
+
+Shows % completion per project (completed_tasks / total_tasks * 100).
+
+⿤ Monthly Workload Trend (Line Chart)
+
+X-axis: Months (Jan–Dec) | Y-axis: Total Hours Logged
+
+Shows productivity trend by time
+
+⿥ Revenue vs Expense Trend (Area Chart)
+
+Visualize revenue vs expense across months or quarters.
+
+Green = Revenue, Red = Expense
+
+⿦ Task Status Distribution (Pie Chart)
+
+Distribution of tasks by status (Completed, In Progress, Blocked).
+
+All charts should refresh when filters or group selections are changed.
+
+⚙ Backend (Node.js + Express + PostgreSQL)
+
+Use Express and the pg library to fetch and aggregate data.
+
+Database Schema:
+
+CREATE TABLE projects (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255),
+  cost NUMERIC,
+  revenue NUMERIC,
+  total_tasks INTEGER DEFAULT 0,
+  completed_tasks INTEGER DEFAULT 0
+);
+
+CREATE TABLE tasks (
+  id SERIAL PRIMARY KEY,
+  project_id INTEGER REFERENCES projects(id),
+  assignee_id INTEGER,
+  status VARCHAR(50),
+  is_billable BOOLEAN,
+  total_logged NUMERIC
+);
+
+CREATE TABLE timesheets (
+  id SERIAL PRIMARY KEY,
+  task_id INTEGER REFERENCES tasks(id),
+  employee_id INTEGER,
+  time_logged NUMERIC,
+  billable BOOLEAN,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+API Endpoints:
+
+GET /api/analytics/kpis → returns { totalProjects, tasksCompleted, totalHours, billableHours, nonBillableHours }
+
+GET /api/analytics/project-costs
+
+GET /api/analytics/resource-utilization
+
+GET /api/analytics/completion
+
+GET /api/analytics/workload-trend
+
+GET /api/analytics/revenue-expense
+
+GET /api/analytics/task-status
+
+GET /api/analytics/filters → returns available filter options
+
+These endpoints should support filter and groupBy query params and respond with JSON for the frontend.
+
+🧱 Frontend (React + Tailwind + Recharts)
+
+Components to create:
+
+AnalyticsPage.jsx → main layout
+
+Sidebar.jsx → navigation sidebar
+
+KpiCard.jsx → reusable KPI component
+
+FilterBar.jsx → includes Filter and Group By dropdowns
+
+BarChartCard.jsx, PieChartCard.jsx, LineChartCard.jsx, AreaChartCard.jsx, DonutChartCard.jsx → chart components
+
+Use:
+
+Axios for backend calls
+
+React Router for routing
+
+Tailwind CSS for layout and responsiveness
+
+Recharts for data visualization
+
+The dashboard should update instantly when filters or grouping change.
+
+🧩 Deliverables
+
+Fully functional Analytics Dashboard with:
+
+Dynamic KPIs
+
+Filter and Group By functionality
+
+Six responsive charts
+
+PostgreSQL backend integration
+
+Responsive, minimal UI
+
+Sidebar integrated
+
+Runs with:
+
+npm run dev → frontend
+
+npm run server → backend
+
+💡 Example Flow
+
+User opens Analytics Dashboard.
+
+KPIs and charts load initial summary data.
+
+User applies filters (e.g., Project: “HR Portal”, Employee: “Alex”).
+
+Dashboard updates via backend API.
+
+User switches Group By to “Employee” → charts reorganize by employee metrics.
+
+All data fetched live from PostgreSQL.
+
+🧱 Stack
+
+Frontend: React + Tailwind CSS + Recharts + Axios
+
+Backend: Node.js + Express
+
+Database: PostgreSQL
+
+Auth: Already implemented
