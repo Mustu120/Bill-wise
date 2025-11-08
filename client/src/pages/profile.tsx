@@ -27,17 +27,17 @@ const api = {
     task_reminders: true,
     billing_alerts: true
   }),
-  updateUser: async (data) => ({ success: true, data }),
-  uploadImage: async (file) => ({ 
+  updateUser: async (data: any) => ({ success: true, data }),
+  uploadImage: async (file: File) => ({ 
     success: true, 
     url: URL.createObjectURL(file) 
   }),
-  updatePreferences: async (prefs) => ({ success: true, data: prefs }),
-  changePassword: async (passwords) => ({ success: true }),
+  updatePreferences: async (prefs: any) => ({ success: true, data: prefs }),
+  changePassword: async (passwords: any) => ({ success: true }),
   deleteAccount: async () => ({ success: true })
 };
 
-const ChangePasswordModal = ({ isOpen, onClose, onSubmit }) => {
+const ChangePasswordModal = ({ isOpen, onClose, onSubmit }: any) => {
   const [passwords, setPasswords] = useState({
     oldPassword: '',
     newPassword: '',
@@ -45,7 +45,7 @@ const ChangePasswordModal = ({ isOpen, onClose, onSubmit }) => {
   });
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -72,56 +72,56 @@ const ChangePasswordModal = ({ isOpen, onClose, onSubmit }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 w-full max-w-md">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-gray-900">Change Password</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white">Change Password</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
             <X size={20} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Current Password
             </label>
             <input
               type="password"
               value={passwords.oldPassword}
               onChange={(e) => setPasswords({ ...passwords, oldPassword: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               New Password
             </label>
             <input
               type="password"
               value={passwords.newPassword}
               onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Confirm New Password
             </label>
             <input
               type="password"
               value={passwords.confirmPassword}
               onChange={(e) => setPasswords({ ...passwords, confirmPassword: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
               required
             />
           </div>
 
           {error && (
-            <div className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">
+            <div className="text-sm text-red-600 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
               {error}
             </div>
           )}
@@ -136,7 +136,7 @@ const ChangePasswordModal = ({ isOpen, onClose, onSubmit }) => {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+              className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors font-medium"
             >
               Cancel
             </button>
@@ -147,30 +147,30 @@ const ChangePasswordModal = ({ isOpen, onClose, onSubmit }) => {
   );
 };
 
-const ProfileOverview = ({ userData, onEdit, onPasswordChange, onImageUpload, isEditing }) => {
-  const getInitials = (name) => {
+const ProfileOverview = ({ userData, onEdit, onPasswordChange, onImageUpload, isEditing }: any) => {
+  const getInitials = (name: string) => {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'JD';
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
       onImageUpload(file);
     }
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
       <div className="flex flex-col items-center text-center">
         <div className="relative mb-4">
           {userData?.profile_image ? (
             <img
               src={userData.profile_image}
               alt={userData.full_name}
-              className="w-32 h-32 rounded-full object-cover border-4 border-purple-100"
+              className="w-32 h-32 rounded-full object-cover border-4 border-purple-100 dark:border-purple-900"
             />
           ) : (
-            <div className="w-32 h-32 bg-purple-600 rounded-full flex items-center justify-center text-white text-4xl font-bold border-4 border-purple-100">
+            <div className="w-32 h-32 bg-purple-600 rounded-full flex items-center justify-center text-white text-4xl font-bold border-4 border-purple-100 dark:border-purple-900">
               {getInitials(userData?.full_name)}
             </div>
           )}
@@ -185,15 +185,15 @@ const ProfileOverview = ({ userData, onEdit, onPasswordChange, onImageUpload, is
           </label>
         </div>
 
-        <h2 className="text-2xl font-bold text-gray-900 mb-1">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
           {userData?.full_name || 'John Doe'}
         </h2>
-        <p className="text-gray-600 mb-2">{userData?.email}</p>
+        <p className="text-gray-600 dark:text-gray-400 mb-2">{userData?.email}</p>
         <p className="text-purple-600 font-semibold mb-2">{userData?.role}</p>
         <span className={`px-3 py-1 rounded-full text-sm font-medium ${
           userData?.status === 'Active' 
-            ? 'bg-green-100 text-green-700' 
-            : 'bg-gray-100 text-gray-700'
+            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' 
+            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
         }`}>
           {userData?.status}
         </span>
@@ -208,7 +208,7 @@ const ProfileOverview = ({ userData, onEdit, onPasswordChange, onImageUpload, is
           </button>
           <button
             onClick={onPasswordChange}
-            className="flex-1 flex items-center justify-center gap-2 bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+            className="flex-1 flex items-center justify-center gap-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors font-medium"
           >
             <Lock size={18} />
             Change Password
@@ -219,11 +219,11 @@ const ProfileOverview = ({ userData, onEdit, onPasswordChange, onImageUpload, is
   );
 };
 
-const PersonalDetails = ({ userData, isEditing, formData, onChange, onSave, onCancel }) => {
+const PersonalDetails = ({ userData, isEditing, formData, onChange, onSave, onCancel }: any) => {
   return (
-    <div className="bg-white rounded-xl shadow-md p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold text-gray-900">Personal Details</h3>
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white">Personal Details</h3>
         {isEditing && (
           <div className="flex gap-2">
             <button
@@ -235,7 +235,7 @@ const PersonalDetails = ({ userData, isEditing, formData, onChange, onSave, onCa
             </button>
             <button
               onClick={onCancel}
-              className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+              className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors font-medium"
             >
               <X size={18} />
               Cancel
@@ -246,7 +246,7 @@ const PersonalDetails = ({ userData, isEditing, formData, onChange, onSave, onCa
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Full Name
           </label>
           <input
@@ -255,12 +255,12 @@ const PersonalDetails = ({ userData, isEditing, formData, onChange, onSave, onCa
             value={formData.full_name || ''}
             onChange={onChange}
             disabled={!isEditing}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50 dark:disabled:bg-gray-800"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Username
           </label>
           <input
@@ -269,12 +269,12 @@ const PersonalDetails = ({ userData, isEditing, formData, onChange, onSave, onCa
             value={formData.username || ''}
             onChange={onChange}
             disabled={!isEditing}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50 dark:disabled:bg-gray-800"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Email Address
           </label>
           <input
@@ -283,12 +283,12 @@ const PersonalDetails = ({ userData, isEditing, formData, onChange, onSave, onCa
             value={formData.email || ''}
             onChange={onChange}
             disabled={!isEditing}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50 dark:disabled:bg-gray-800"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Phone Number
           </label>
           <input
@@ -297,12 +297,12 @@ const PersonalDetails = ({ userData, isEditing, formData, onChange, onSave, onCa
             value={formData.phone || ''}
             onChange={onChange}
             disabled={!isEditing}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50 dark:disabled:bg-gray-800"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Gender
           </label>
           <select
@@ -310,7 +310,7 @@ const PersonalDetails = ({ userData, isEditing, formData, onChange, onSave, onCa
             value={formData.gender || ''}
             onChange={onChange}
             disabled={!isEditing}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50 dark:disabled:bg-gray-800"
           >
             <option value="">Select Gender</option>
             <option value="Male">Male</option>
@@ -320,7 +320,7 @@ const PersonalDetails = ({ userData, isEditing, formData, onChange, onSave, onCa
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Date of Birth
           </label>
           <input
@@ -329,12 +329,12 @@ const PersonalDetails = ({ userData, isEditing, formData, onChange, onSave, onCa
             value={formData.dob || ''}
             onChange={onChange}
             disabled={!isEditing}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50 dark:disabled:bg-gray-800"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Department / Team
           </label>
           <input
@@ -343,12 +343,12 @@ const PersonalDetails = ({ userData, isEditing, formData, onChange, onSave, onCa
             value={formData.department || ''}
             onChange={onChange}
             disabled={!isEditing}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50 dark:disabled:bg-gray-800"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Designation / Role
           </label>
           <input
@@ -357,12 +357,12 @@ const PersonalDetails = ({ userData, isEditing, formData, onChange, onSave, onCa
             value={formData.designation || ''}
             onChange={onChange}
             disabled={!isEditing}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50 dark:disabled:bg-gray-800"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Joining Date
           </label>
           <input
@@ -371,12 +371,12 @@ const PersonalDetails = ({ userData, isEditing, formData, onChange, onSave, onCa
             value={formData.join_date || ''}
             onChange={onChange}
             disabled={!isEditing}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50 dark:disabled:bg-gray-800"
           />
         </div>
 
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Address
           </label>
           <input
@@ -385,12 +385,12 @@ const PersonalDetails = ({ userData, isEditing, formData, onChange, onSave, onCa
             value={formData.address || ''}
             onChange={onChange}
             disabled={!isEditing}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50 dark:disabled:bg-gray-800"
           />
         </div>
 
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Bio
           </label>
           <textarea
@@ -399,7 +399,7 @@ const PersonalDetails = ({ userData, isEditing, formData, onChange, onSave, onCa
             onChange={onChange}
             disabled={!isEditing}
             rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50 resize-none"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50 dark:disabled:bg-gray-800 resize-none"
           />
         </div>
       </div>
@@ -407,22 +407,22 @@ const PersonalDetails = ({ userData, isEditing, formData, onChange, onSave, onCa
   );
 };
 
-const AccountSettings = ({ userData, preferences, onChange, onSave, onDelete }) => {
+const AccountSettings = ({ userData, preferences, onChange, onSave, onDelete }: any) => {
   return (
-    <div className="bg-white rounded-xl shadow-md p-6">
-      <h3 className="text-xl font-bold text-gray-900 mb-6">Account Settings</h3>
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Account Settings</h3>
 
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Language
             </label>
             <select
               name="language"
               value={preferences.language || 'English'}
               onChange={onChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
             >
               <option value="English">English</option>
               <option value="Hindi">Hindi</option>
@@ -432,14 +432,14 @@ const AccountSettings = ({ userData, preferences, onChange, onSave, onDelete }) 
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Time Zone
             </label>
             <select
               name="timezone"
               value={preferences.timezone || 'Asia/Kolkata'}
               onChange={onChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
             >
               <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
               <option value="America/New_York">America/New_York (EST)</option>
@@ -449,14 +449,14 @@ const AccountSettings = ({ userData, preferences, onChange, onSave, onDelete }) 
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Theme
             </label>
             <select
               name="theme"
               value={preferences.theme || 'Light'}
               onChange={onChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
             >
               <option value="Light">Light</option>
               <option value="Dark">Dark</option>
@@ -465,7 +465,7 @@ const AccountSettings = ({ userData, preferences, onChange, onSave, onDelete }) 
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
             Notification Settings
           </label>
           <div className="space-y-3">
@@ -475,9 +475,9 @@ const AccountSettings = ({ userData, preferences, onChange, onSave, onDelete }) 
                 name="email_notifications"
                 checked={preferences.email_notifications || false}
                 onChange={onChange}
-                className="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-600"
+                className="w-5 h-5 text-purple-600 border-gray-300 dark:border-gray-600 rounded focus:ring-purple-600"
               />
-              <span className="text-gray-700">Email Notifications</span>
+              <span className="text-gray-700 dark:text-gray-300">Email Notifications</span>
             </label>
 
             <label className="flex items-center gap-3 cursor-pointer">
@@ -486,9 +486,9 @@ const AccountSettings = ({ userData, preferences, onChange, onSave, onDelete }) 
                 name="task_reminders"
                 checked={preferences.task_reminders || false}
                 onChange={onChange}
-                className="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-600"
+                className="w-5 h-5 text-purple-600 border-gray-300 dark:border-gray-600 rounded focus:ring-purple-600"
               />
-              <span className="text-gray-700">Task Reminders</span>
+              <span className="text-gray-700 dark:text-gray-300">Task Reminders</span>
             </label>
 
             <label className="flex items-center gap-3 cursor-pointer">
@@ -497,14 +497,14 @@ const AccountSettings = ({ userData, preferences, onChange, onSave, onDelete }) 
                 name="billing_alerts"
                 checked={preferences.billing_alerts || false}
                 onChange={onChange}
-                className="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-600"
+                className="w-5 h-5 text-purple-600 border-gray-300 dark:border-gray-600 rounded focus:ring-purple-600"
               />
-              <span className="text-gray-700">Billing Alerts</span>
+              <span className="text-gray-700 dark:text-gray-300">Billing Alerts</span>
             </label>
           </div>
         </div>
 
-        <div className="flex gap-3 pt-4 border-t border-gray-200">
+        <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={onSave}
             className="flex items-center gap-2 bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium"
@@ -526,9 +526,9 @@ const AccountSettings = ({ userData, preferences, onChange, onSave, onDelete }) 
 };
 
 export default function MyProfile() {
-  const [userData, setUserData] = useState(null);
-  const [formData, setFormData] = useState({});
-  const [preferences, setPreferences] = useState({});
+  const [userData, setUserData] = useState<any>(null);
+  const [formData, setFormData] = useState<any>({});
+  const [preferences, setPreferences] = useState<any>({});
   const [isEditing, setIsEditing] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -578,14 +578,15 @@ export default function MyProfile() {
     }
   };
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev: any) => ({ ...prev, [name]: value }));
   };
 
-  const handlePreferenceChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setPreferences(prev => ({
+  const handlePreferenceChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
+    setPreferences((prev: any) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
@@ -594,7 +595,7 @@ export default function MyProfile() {
   const handleSavePreferences = async () => {
     try {
       await api.updatePreferences(preferences);
-      setUserData(prev => ({ ...prev, ...preferences }));
+      setUserData((prev: any) => ({ ...prev, ...preferences }));
       alert('Settings saved successfully!');
     } catch (error) {
       console.error('Failed to save preferences:', error);
@@ -602,7 +603,7 @@ export default function MyProfile() {
     }
   };
 
-  const handleImageUpload = async (file) => {
+  const handleImageUpload = async (file: File) => {
     try {
       const result = await api.uploadImage(file);
       const updatedData = { ...userData, profile_image: result.url };
@@ -615,7 +616,7 @@ export default function MyProfile() {
     }
   };
 
-  const handlePasswordChange = async (passwords) => {
+  const handlePasswordChange = async (passwords: any) => {
     try {
       await api.changePassword(passwords);
       alert('Password changed successfully!');
@@ -647,9 +648,9 @@ export default function MyProfile() {
 
   return (
     <AppLayout>
-      <div className="h-screen overflow-y-auto bg-background">
+      <div className="h-screen overflow-y-auto bg-gray-50 dark:bg-gray-900">
         <div className="max-w-6xl mx-auto p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">My Profile</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">My Profile</h1>
           
           <div className="space-y-6">
             <ProfileOverview
