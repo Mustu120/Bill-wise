@@ -6,8 +6,16 @@ import path from "path";
 import { promises as fs } from "fs";
 import { storage } from "./storage";
 import { hashPassword, comparePassword, generateToken, authenticate, requireAdmin, type AuthRequest } from "./auth";
-import { insertUserSchema, insertProjectSchema, insertTaskSchema, insertTimesheetSchema } from "@shared/schema";
+import { 
+  insertUserSchema, insertProjectSchema, insertTaskSchema, insertTimesheetSchema,
+  insertPartnerSchema, insertProductSchema, insertTaxSchema,
+  insertSalesOrderSchema, insertSalesOrderLineSchema,
+  insertPurchaseOrderSchema, insertPurchaseOrderLineSchema,
+  insertInvoiceSchema, insertInvoiceLineSchema,
+  insertExpenseSchema
+} from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
+import Tesseract from "tesseract.js";
 
 const upload = multer({
   storage: multer.diskStorage({
@@ -575,6 +583,783 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Get analytics filters error:", error);
       return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // ============================================================
+  // FlowChain Settings - Partners
+  // ============================================================
+  
+  app.get("/api/partners", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const partners = await storage.getAllPartners({
+        search: req.query.search as string,
+        type: req.query.type as "customer" | "vendor" | "both"
+      });
+      return res.json(partners);
+    } catch (error) {
+      console.error("Get partners error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/partners/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const partner = await storage.getPartner(req.params.id);
+      if (!partner) {
+        return res.status(404).json({ error: "Partner not found" });
+      }
+      return res.json(partner);
+    } catch (error) {
+      console.error("Get partner error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/partners", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const validationResult = insertPartnerSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      const partner = await storage.createPartner(validationResult.data);
+      return res.status(201).json(partner);
+    } catch (error) {
+      console.error("Create partner error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.put("/api/partners/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const validationResult = insertPartnerSchema.partial().safeParse(req.body);
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      const partner = await storage.updatePartner(req.params.id, validationResult.data);
+      if (!partner) {
+        return res.status(404).json({ error: "Partner not found" });
+      }
+      return res.json(partner);
+    } catch (error) {
+      console.error("Update partner error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/partners/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const deleted = await storage.deletePartner(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Partner not found" });
+      }
+      return res.status(204).send();
+    } catch (error) {
+      console.error("Delete partner error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // ============================================================
+  // FlowChain Settings - Products
+  // ============================================================
+  
+  app.get("/api/products", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const products = await storage.getAllProducts({ search: req.query.search as string });
+      return res.json(products);
+    } catch (error) {
+      console.error("Get products error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/products/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const product = await storage.getProduct(req.params.id);
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+      return res.json(product);
+    } catch (error) {
+      console.error("Get product error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/products", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const validationResult = insertProductSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      const product = await storage.createProduct(validationResult.data);
+      return res.status(201).json(product);
+    } catch (error) {
+      console.error("Create product error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.put("/api/products/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const validationResult = insertProductSchema.partial().safeParse(req.body);
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      const product = await storage.updateProduct(req.params.id, validationResult.data);
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+      return res.json(product);
+    } catch (error) {
+      console.error("Update product error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/products/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const deleted = await storage.deleteProduct(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+      return res.status(204).send();
+    } catch (error) {
+      console.error("Delete product error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // ============================================================
+  // FlowChain Settings - Taxes
+  // ============================================================
+  
+  app.get("/api/taxes", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const taxes = await storage.getAllTaxes();
+      return res.json(taxes);
+    } catch (error) {
+      console.error("Get taxes error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/taxes/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const tax = await storage.getTax(req.params.id);
+      if (!tax) {
+        return res.status(404).json({ error: "Tax not found" });
+      }
+      return res.json(tax);
+    } catch (error) {
+      console.error("Get tax error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/taxes", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const validationResult = insertTaxSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      const tax = await storage.createTax(validationResult.data);
+      return res.status(201).json(tax);
+    } catch (error) {
+      console.error("Create tax error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.put("/api/taxes/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const validationResult = insertTaxSchema.partial().safeParse(req.body);
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      const tax = await storage.updateTax(req.params.id, validationResult.data);
+      if (!tax) {
+        return res.status(404).json({ error: "Tax not found" });
+      }
+      return res.json(tax);
+    } catch (error) {
+      console.error("Update tax error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/taxes/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const deleted = await storage.deleteTax(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Tax not found" });
+      }
+      return res.status(204).send();
+    } catch (error) {
+      console.error("Delete tax error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // ============================================================
+  // FlowChain Settings - Sales Orders
+  // ============================================================
+  
+  app.get("/api/sales-orders", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const orders = await storage.getAllSalesOrders({
+        search: req.query.search as string,
+        status: req.query.status as string
+      });
+      return res.json(orders);
+    } catch (error) {
+      console.error("Get sales orders error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/sales-orders/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const order = await storage.getSalesOrder(req.params.id);
+      if (!order) {
+        return res.status(404).json({ error: "Sales order not found" });
+      }
+      return res.json(order);
+    } catch (error) {
+      console.error("Get sales order error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/sales-orders", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const validationResult = insertSalesOrderSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      const order = await storage.createSalesOrder(validationResult.data);
+      return res.status(201).json(order);
+    } catch (error) {
+      console.error("Create sales order error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.put("/api/sales-orders/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const validationResult = insertSalesOrderSchema.partial().safeParse(req.body);
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      const order = await storage.updateSalesOrder(req.params.id, validationResult.data);
+      if (!order) {
+        return res.status(404).json({ error: "Sales order not found" });
+      }
+      return res.json(order);
+    } catch (error) {
+      console.error("Update sales order error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/sales-orders/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const deleted = await storage.deleteSalesOrder(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Sales order not found" });
+      }
+      return res.status(204).send();
+    } catch (error) {
+      console.error("Delete sales order error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Sales Order Lines
+  app.get("/api/sales-orders/:orderId/lines", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const lines = await storage.getSalesOrderLines(req.params.orderId);
+      return res.json(lines);
+    } catch (error) {
+      console.error("Get sales order lines error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/sales-orders/:orderId/lines", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const validationResult = insertSalesOrderLineSchema.safeParse({
+        ...req.body,
+        salesOrderId: req.params.orderId
+      });
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      const line = await storage.addSalesOrderLine(validationResult.data);
+      return res.status(201).json(line);
+    } catch (error) {
+      console.error("Add sales order line error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.put("/api/sales-order-lines/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const validationResult = insertSalesOrderLineSchema.partial().safeParse(req.body);
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      const line = await storage.updateSalesOrderLine(req.params.id, validationResult.data);
+      if (!line) {
+        return res.status(404).json({ error: "Sales order line not found" });
+      }
+      return res.json(line);
+    } catch (error) {
+      console.error("Update sales order line error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/sales-order-lines/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const deleted = await storage.deleteSalesOrderLine(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Sales order line not found" });
+      }
+      return res.status(204).send();
+    } catch (error) {
+      console.error("Delete sales order line error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // ============================================================
+  // FlowChain Settings - Purchase Orders
+  // ============================================================
+  
+  app.get("/api/purchase-orders", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const orders = await storage.getAllPurchaseOrders({
+        search: req.query.search as string,
+        status: req.query.status as string
+      });
+      return res.json(orders);
+    } catch (error) {
+      console.error("Get purchase orders error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/purchase-orders/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const order = await storage.getPurchaseOrder(req.params.id);
+      if (!order) {
+        return res.status(404).json({ error: "Purchase order not found" });
+      }
+      return res.json(order);
+    } catch (error) {
+      console.error("Get purchase order error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/purchase-orders", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const validationResult = insertPurchaseOrderSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      const order = await storage.createPurchaseOrder(validationResult.data);
+      return res.status(201).json(order);
+    } catch (error) {
+      console.error("Create purchase order error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.put("/api/purchase-orders/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const validationResult = insertPurchaseOrderSchema.partial().safeParse(req.body);
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      const order = await storage.updatePurchaseOrder(req.params.id, validationResult.data);
+      if (!order) {
+        return res.status(404).json({ error: "Purchase order not found" });
+      }
+      return res.json(order);
+    } catch (error) {
+      console.error("Update purchase order error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/purchase-orders/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const deleted = await storage.deletePurchaseOrder(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Purchase order not found" });
+      }
+      return res.status(204).send();
+    } catch (error) {
+      console.error("Delete purchase order error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Purchase Order Lines
+  app.get("/api/purchase-orders/:orderId/lines", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const lines = await storage.getPurchaseOrderLines(req.params.orderId);
+      return res.json(lines);
+    } catch (error) {
+      console.error("Get purchase order lines error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/purchase-orders/:orderId/lines", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const validationResult = insertPurchaseOrderLineSchema.safeParse({
+        ...req.body,
+        purchaseOrderId: req.params.orderId
+      });
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      const line = await storage.addPurchaseOrderLine(validationResult.data);
+      return res.status(201).json(line);
+    } catch (error) {
+      console.error("Add purchase order line error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.put("/api/purchase-order-lines/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const validationResult = insertPurchaseOrderLineSchema.partial().safeParse(req.body);
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      const line = await storage.updatePurchaseOrderLine(req.params.id, validationResult.data);
+      if (!line) {
+        return res.status(404).json({ error: "Purchase order line not found" });
+      }
+      return res.json(line);
+    } catch (error) {
+      console.error("Update purchase order line error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/purchase-order-lines/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const deleted = await storage.deletePurchaseOrderLine(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Purchase order line not found" });
+      }
+      return res.status(204).send();
+    } catch (error) {
+      console.error("Delete purchase order line error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // ============================================================
+  // FlowChain Settings - Invoices
+  // ============================================================
+  
+  app.get("/api/invoices", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const invoices = await storage.getAllInvoices({
+        search: req.query.search as string,
+        type: req.query.type as "customer" | "vendor",
+        status: req.query.status as string
+      });
+      return res.json(invoices);
+    } catch (error) {
+      console.error("Get invoices error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/invoices/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const invoice = await storage.getInvoice(req.params.id);
+      if (!invoice) {
+        return res.status(404).json({ error: "Invoice not found" });
+      }
+      return res.json(invoice);
+    } catch (error) {
+      console.error("Get invoice error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/invoices", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const validationResult = insertInvoiceSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      const invoice = await storage.createInvoice(validationResult.data);
+      return res.status(201).json(invoice);
+    } catch (error) {
+      console.error("Create invoice error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.put("/api/invoices/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const validationResult = insertInvoiceSchema.partial().safeParse(req.body);
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      const invoice = await storage.updateInvoice(req.params.id, validationResult.data);
+      if (!invoice) {
+        return res.status(404).json({ error: "Invoice not found" });
+      }
+      return res.json(invoice);
+    } catch (error) {
+      console.error("Update invoice error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/invoices/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const deleted = await storage.deleteInvoice(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Invoice not found" });
+      }
+      return res.status(204).send();
+    } catch (error) {
+      console.error("Delete invoice error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Invoice Lines
+  app.get("/api/invoices/:invoiceId/lines", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const lines = await storage.getInvoiceLines(req.params.invoiceId);
+      return res.json(lines);
+    } catch (error) {
+      console.error("Get invoice lines error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/invoices/:invoiceId/lines", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const validationResult = insertInvoiceLineSchema.safeParse({
+        ...req.body,
+        invoiceId: req.params.invoiceId
+      });
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      const line = await storage.addInvoiceLine(validationResult.data);
+      return res.status(201).json(line);
+    } catch (error) {
+      console.error("Add invoice line error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.put("/api/invoice-lines/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const validationResult = insertInvoiceLineSchema.partial().safeParse(req.body);
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      const line = await storage.updateInvoiceLine(req.params.id, validationResult.data);
+      if (!line) {
+        return res.status(404).json({ error: "Invoice line not found" });
+      }
+      return res.json(line);
+    } catch (error) {
+      console.error("Update invoice line error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/invoice-lines/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const deleted = await storage.deleteInvoiceLine(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Invoice line not found" });
+      }
+      return res.status(204).send();
+    } catch (error) {
+      console.error("Delete invoice line error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // ============================================================
+  // FlowChain Settings - Expenses
+  // ============================================================
+  
+  app.get("/api/expenses", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const expenses = await storage.getAllExpenses({ search: req.query.search as string });
+      return res.json(expenses);
+    } catch (error) {
+      console.error("Get expenses error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/expenses/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const expense = await storage.getExpense(req.params.id);
+      if (!expense) {
+        return res.status(404).json({ error: "Expense not found" });
+      }
+      return res.json(expense);
+    } catch (error) {
+      console.error("Get expense error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/expenses", authenticate, upload.single('image'), async (req: AuthRequest, res) => {
+    try {
+      const expenseData = req.body;
+      if (req.file) {
+        expenseData.imageUrl = `/uploads/${req.file.filename}`;
+      }
+      
+      const validationResult = insertExpenseSchema.safeParse(expenseData);
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      const expense = await storage.createExpense(validationResult.data);
+      return res.status(201).json(expense);
+    } catch (error) {
+      console.error("Create expense error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.put("/api/expenses/:id", authenticate, upload.single('image'), async (req: AuthRequest, res) => {
+    try {
+      const expenseData = req.body;
+      if (req.file) {
+        expenseData.imageUrl = `/uploads/${req.file.filename}`;
+      }
+      
+      const validationResult = insertExpenseSchema.partial().safeParse(expenseData);
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      const expense = await storage.updateExpense(req.params.id, validationResult.data);
+      if (!expense) {
+        return res.status(404).json({ error: "Expense not found" });
+      }
+      return res.json(expense);
+    } catch (error) {
+      console.error("Update expense error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/expenses/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const deleted = await storage.deleteExpense(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Expense not found" });
+      }
+      return res.status(204).send();
+    } catch (error) {
+      console.error("Delete expense error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // ============================================================
+  // FlowChain Settings - OCR for Expense Auto-fill
+  // ============================================================
+  
+  app.post("/api/expenses/ocr", authenticate, upload.single('image'), async (req: AuthRequest, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No image file uploaded" });
+      }
+
+      const imagePath = req.file.path;
+      
+      const { data: { text } } = await Tesseract.recognize(
+        imagePath,
+        'eng',
+        {
+          logger: info => console.log('OCR progress:', info)
+        }
+      );
+
+      const ocrData = {
+        rawText: text,
+        extractedData: {
+          possibleVendor: null as string | null,
+          possibleAmount: null as string | null,
+          possibleDate: null as string | null,
+        }
+      };
+
+      const lines = text.split('\n').filter(line => line.trim());
+      
+      const amountPattern = /\$?\d+[,.]?\d*\.?\d{2}/;
+      const datePattern = /\b\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\b/;
+      
+      for (const line of lines) {
+        if (!ocrData.extractedData.possibleAmount) {
+          const amountMatch = line.match(amountPattern);
+          if (amountMatch) {
+            ocrData.extractedData.possibleAmount = amountMatch[0].replace(/[$,]/g, '');
+          }
+        }
+        
+        if (!ocrData.extractedData.possibleDate) {
+          const dateMatch = line.match(datePattern);
+          if (dateMatch) {
+            ocrData.extractedData.possibleDate = dateMatch[0];
+          }
+        }
+        
+        if (!ocrData.extractedData.possibleVendor && line.length > 3 && line.length < 50) {
+          if (!line.match(amountPattern) && !line.match(datePattern)) {
+            ocrData.extractedData.possibleVendor = line.trim();
+          }
+        }
+      }
+
+      return res.json(ocrData);
+    } catch (error) {
+      console.error("OCR processing error:", error);
+      return res.status(500).json({ error: "Failed to process image with OCR" });
     }
   });
 
