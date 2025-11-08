@@ -1,0 +1,59 @@
+That's great! Since the login/sign-up is complete, directing the user to the main dashboard is the logical next step.
+
+The prompt I provided previously is still the core of what you need, but to explicitly tell Replit's AI to build the main dashboard component assuming it's the destination after login, you should use a slightly modified and context-aware prompt.
+
+Here is the best prompt for Replit's AI, emphasizing that this is the main, post-login view:
+
+🚀 Replit AI Prompt for Post-Login Dashboard Component
+"I have already completed the login and sign-up pages. My next step is to build the main dashboard page, which the user will be directed to immediately after a successful login.
+
+Please generate the full, runnable React component for this Project Management Dashboard, named Dashboard.js or Projects.js, using Functional Components, Hooks, and Tailwind CSS.
+
+The application must accurately represent the FlowChain Projects Dashboard (based on image_e7f043.png) and include the associated modals for adding and viewing project details.
+
+1. Main Dashboard Structure (Post-Login View)
+Goal: Create the main content page as the default view after successful authentication.
+
+Layout: Implement the complete layout:
+
+Fixed Sidebar Navigation (Links: Projects, Tasks, Analytics, Settings, My profile).
+
+Header/Stats Bar (Cards for: Active Projects, Delayed Tasks, Hours Logged, Revenue Earned).
+
+Project Filter Tabs (All, Planned, In Progress, Completed, On Hold).
+
+Grid of Project Cards displaying the dummy data (5 projects).
+
+The "+ New Project" button on the top right must be functional, opening the Add New Project Modal.
+
+Card Functionality Requirement: Implement an invisible mechanism where clicking anywhere on a project card will open the Project Details Modal AND display a subtle, small menu (e.g., a three-dot icon or a small dropdown near the project name) with the options: "Edit" and "Delete".
+
+2. Project Modals Implementation
+Add New Project Modal: Create this modal (to be triggered by the "+ New Project" button) with ALL the requested custom fields:
+
+Name (Text input)
+
+Tags (Multi-select dropdown with dummy options)
+
+Project Manager (Dropdown with dummy names)
+
+Deadline (Date input)
+
+Priority (Radio buttons: High, Medium, Low)
+
+Budget (Number input)
+
+Description (Textarea)
+
+Status (Dropdown, defaulted to Planned)
+
+Project Details Modal: Create this modal (to be triggered by clicking a card) displaying the project's Status, Manager, Progress, Budget, and Due Date.
+
+Styling and Data
+Use Tailwind CSS heavily to match the purple accents, clean white cards, and overall modern aesthetic of the provided images.
+
+Include a React state array with at least 5 dummy project objects to populate the cards, mirroring the provided visual data.
+
+Output: Provide the complete, single-file React component code for this dashboard page."
+
+PROJECT PAGE
