@@ -1,0 +1,168 @@
+Build a Tasks Page for a project called FlowChain – Bill Management System using React (frontend), Node.js + Express (backend), and PostgreSQL (database).
+
+Authentication is already implemented, so assume the logged-in user’s ID and name are available in session or context.
+Design and layout should match a modern light theme dashboard with accent colors (purple/white), rounded cards, and tabbed sections.
+
+🧭 Page Overview
+
+The Tasks Page should have two main toggles at the top:
+
+My Tasks — shows only tasks assigned to the logged-in user
+
+All Tasks — shows every task in the system
+
+Users should be able to:
+
+View existing tasks in a simple board/list layout
+
+Create a new task
+
+Edit an existing task
+Include a search bar at the top-right to filter tasks by title or tag.
+
+➕ Create / Edit Task View
+
+When the user clicks Create Task or Edit Task, show a form with the following fields:
+
+Task Name: text input
+
+Assignee: single-select dropdown (populated from users table)
+
+Project: single-select dropdown (auto-fills if opened from a project view)
+
+Tags: multi-select dropdown (comma-separated values)
+
+Deadline: date selector
+
+Image Upload: button to browse and upload an image file
+
+Uploaded files go to /uploads folder on the server.
+
+Save filename or URL in PostgreSQL under image_url column.
+
+🗂 Tabs (below form)
+
+Create three tab sections:
+
+⿡ Description Tab — large text area for writing the task description.
+⿢ Timesheets Tab — table structure with columns: Employee | Time Logged (hrs).
+
+Add/remove rows dynamically.
+
+Store data in timesheets table:
+
+CREATE TABLE timesheets (
+  id SERIAL PRIMARY KEY,
+  task_id INTEGER REFERENCES tasks(id),
+  employee_id INTEGER REFERENCES users(id),
+  time_logged NUMERIC
+);
+
+
+⿣ Task Info Tab — shows metadata:
+
+Last change made by
+
+Last modified date
+
+Total working hours (auto-calculated or manual)
+
+💾 Buttons and Actions
+
+Save (Green) → save or update task via POST/PUT /api/tasks
+
+Discard (Grey) → cancel and return to list
+
+Buttons appear top-right of the form.
+
+⚙ Backend (Node.js + Express + PostgreSQL)
+
+Use Express and pg to connect to PostgreSQL.
+Database schema:
+
+CREATE TABLE tasks (
+  id SERIAL PRIMARY KEY,
+  task_name VARCHAR(255),
+  assignee_id INTEGER REFERENCES users(id),
+  project_id INTEGER REFERENCES projects(id),
+  tags TEXT[],
+  deadline DATE,
+  description TEXT,
+  image_url TEXT,
+  last_modified_by INTEGER REFERENCES users(id),
+  last_modified_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  total_hours NUMERIC DEFAULT 0
+);
+
+
+API Endpoints:
+
+GET /api/tasks → fetch all tasks (filter by current user if ?assignedTo=currentUserId)
+
+GET /api/tasks/:id → fetch one
+
+POST /api/tasks → create
+
+PUT /api/tasks/:id → update
+
+POST /api/upload → handle image upload (use multer)
+
+GET /api/projects, GET /api/users → populate dropdowns
+
+Use auth middleware to verify user session.
+
+🧱 Frontend (React + Tailwind)
+
+Components:
+
+TasksPage.jsx — list view + toggles (My Tasks / All Tasks)
+
+TaskForm.jsx — Create/Edit form + tabs
+
+Sidebar.jsx — navigation
+
+Tabs.jsx — reusable tabs (Description, Timesheets, Task Info)
+
+TaskCard.jsx — display tasks
+
+Use Axios for API calls and React Router for navigation.
+Style with Tailwind CSS.
+Optionally add Framer Motion for animations.
+
+🧩 Deliverables
+
+Functional Tasks page (list + create/edit)
+
+Image upload support
+
+PostgreSQL CRUD integration
+
+Uses authenticated user for My Tasks filter
+
+Responsive layout
+
+💡 Example Flow
+
+User logs in.
+
+Opens Tasks → sees My Tasks / All Tasks.
+
+Clicks Create Task → form opens.
+
+Fills details, uploads image, adds description/timesheets.
+
+Clicks Save → data stored in PostgreSQL.
+
+Returns to updated task list.
+
+🧱 Stack
+
+Frontend: React + Tailwind CSS
+
+Backend: Node.js + Express
+
+Database: PostgreSQL
+
+File Uploads: Multer
+
+Auth: already handled
