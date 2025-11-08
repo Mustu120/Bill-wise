@@ -1,7 +1,26 @@
 import { eq } from "drizzle-orm";
 import { db } from "./db";
-import { users, projects, tasks, timesheets } from "@shared/schema";
-import type { User, InsertUser, UserWithoutPassword, Project, InsertProject, Task, InsertTask, Timesheet, InsertTimesheet } from "@shared/schema";
+import { 
+  users, projects, tasks, timesheets, partners, products, taxes,
+  salesOrders, salesOrderLines, purchaseOrders, purchaseOrderLines,
+  invoices, invoiceLines, expenses
+} from "@shared/schema";
+import type { 
+  User, InsertUser, UserWithoutPassword, 
+  Project, InsertProject, 
+  Task, InsertTask, 
+  Timesheet, InsertTimesheet,
+  Partner, InsertPartner,
+  Product, InsertProduct,
+  Tax, InsertTax,
+  SalesOrder, InsertSalesOrder,
+  SalesOrderLine, InsertSalesOrderLine,
+  PurchaseOrder, InsertPurchaseOrder,
+  PurchaseOrderLine, InsertPurchaseOrderLine,
+  Invoice, InsertInvoice,
+  InvoiceLine, InsertInvoiceLine,
+  Expense, InsertExpense
+} from "@shared/schema";
 import type { IStorage } from "./storage";
 
 export class PgStorage implements IStorage {
@@ -345,6 +364,281 @@ export class PgStorage implements IStorage {
       employees: allUsers.map(u => ({ id: u.id, name: u.name })),
       statuses: ['Planned', 'In Progress', 'Completed', 'Blocked'],
     };
+  }
+
+  async getPartner(id: string): Promise<Partner | undefined> {
+    const result = await db.select().from(partners).where(eq(partners.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getAllPartners(filters?: any): Promise<Partner[]> {
+    const result = await db.select().from(partners);
+    return result;
+  }
+
+  async createPartner(insertPartner: InsertPartner): Promise<Partner> {
+    const result = await db.insert(partners).values(insertPartner).returning();
+    return result[0];
+  }
+
+  async updatePartner(id: string, updateData: Partial<InsertPartner>): Promise<Partner | undefined> {
+    const result = await db
+      .update(partners)
+      .set(updateData)
+      .where(eq(partners.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deletePartner(id: string): Promise<boolean> {
+    const result = await db.delete(partners).where(eq(partners.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async getProduct(id: string): Promise<Product | undefined> {
+    const result = await db.select().from(products).where(eq(products.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getAllProducts(filters?: any): Promise<Product[]> {
+    const result = await db.select().from(products);
+    return result;
+  }
+
+  async createProduct(insertProduct: InsertProduct): Promise<Product> {
+    const result = await db.insert(products).values(insertProduct).returning();
+    return result[0];
+  }
+
+  async updateProduct(id: string, updateData: Partial<InsertProduct>): Promise<Product | undefined> {
+    const result = await db
+      .update(products)
+      .set(updateData)
+      .where(eq(products.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteProduct(id: string): Promise<boolean> {
+    const result = await db.delete(products).where(eq(products.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async getTax(id: string): Promise<Tax | undefined> {
+    const result = await db.select().from(taxes).where(eq(taxes.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getAllTaxes(): Promise<Tax[]> {
+    const result = await db.select().from(taxes);
+    return result;
+  }
+
+  async createTax(insertTax: InsertTax): Promise<Tax> {
+    const result = await db.insert(taxes).values(insertTax).returning();
+    return result[0];
+  }
+
+  async updateTax(id: string, updateData: Partial<InsertTax>): Promise<Tax | undefined> {
+    const result = await db
+      .update(taxes)
+      .set(updateData)
+      .where(eq(taxes.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteTax(id: string): Promise<boolean> {
+    const result = await db.delete(taxes).where(eq(taxes.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async getSalesOrder(id: string): Promise<SalesOrder | undefined> {
+    const result = await db.select().from(salesOrders).where(eq(salesOrders.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getAllSalesOrders(filters?: any): Promise<SalesOrder[]> {
+    const result = await db.select().from(salesOrders);
+    return result;
+  }
+
+  async createSalesOrder(insertOrder: InsertSalesOrder): Promise<SalesOrder> {
+    const result = await db.insert(salesOrders).values(insertOrder).returning();
+    return result[0];
+  }
+
+  async updateSalesOrder(id: string, updateData: Partial<InsertSalesOrder>): Promise<SalesOrder | undefined> {
+    const result = await db
+      .update(salesOrders)
+      .set(updateData)
+      .where(eq(salesOrders.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteSalesOrder(id: string): Promise<boolean> {
+    const result = await db.delete(salesOrders).where(eq(salesOrders.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async getSalesOrderLines(orderId: string): Promise<SalesOrderLine[]> {
+    const result = await db.select().from(salesOrderLines).where(eq(salesOrderLines.orderId, orderId));
+    return result;
+  }
+
+  async addSalesOrderLine(insertLine: InsertSalesOrderLine): Promise<SalesOrderLine> {
+    const result = await db.insert(salesOrderLines).values(insertLine).returning();
+    return result[0];
+  }
+
+  async updateSalesOrderLine(id: string, updateData: Partial<InsertSalesOrderLine>): Promise<SalesOrderLine | undefined> {
+    const result = await db
+      .update(salesOrderLines)
+      .set(updateData)
+      .where(eq(salesOrderLines.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteSalesOrderLine(id: string): Promise<boolean> {
+    const result = await db.delete(salesOrderLines).where(eq(salesOrderLines.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async getPurchaseOrder(id: string): Promise<PurchaseOrder | undefined> {
+    const result = await db.select().from(purchaseOrders).where(eq(purchaseOrders.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getAllPurchaseOrders(filters?: any): Promise<PurchaseOrder[]> {
+    const result = await db.select().from(purchaseOrders);
+    return result;
+  }
+
+  async createPurchaseOrder(insertOrder: InsertPurchaseOrder): Promise<PurchaseOrder> {
+    const result = await db.insert(purchaseOrders).values(insertOrder).returning();
+    return result[0];
+  }
+
+  async updatePurchaseOrder(id: string, updateData: Partial<InsertPurchaseOrder>): Promise<PurchaseOrder | undefined> {
+    const result = await db
+      .update(purchaseOrders)
+      .set(updateData)
+      .where(eq(purchaseOrders.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deletePurchaseOrder(id: string): Promise<boolean> {
+    const result = await db.delete(purchaseOrders).where(eq(purchaseOrders.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async getPurchaseOrderLines(orderId: string): Promise<PurchaseOrderLine[]> {
+    const result = await db.select().from(purchaseOrderLines).where(eq(purchaseOrderLines.orderId, orderId));
+    return result;
+  }
+
+  async addPurchaseOrderLine(insertLine: InsertPurchaseOrderLine): Promise<PurchaseOrderLine> {
+    const result = await db.insert(purchaseOrderLines).values(insertLine).returning();
+    return result[0];
+  }
+
+  async updatePurchaseOrderLine(id: string, updateData: Partial<InsertPurchaseOrderLine>): Promise<PurchaseOrderLine | undefined> {
+    const result = await db
+      .update(purchaseOrderLines)
+      .set(updateData)
+      .where(eq(purchaseOrderLines.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deletePurchaseOrderLine(id: string): Promise<boolean> {
+    const result = await db.delete(purchaseOrderLines).where(eq(purchaseOrderLines.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async getInvoice(id: string): Promise<Invoice | undefined> {
+    const result = await db.select().from(invoices).where(eq(invoices.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getAllInvoices(filters?: any): Promise<Invoice[]> {
+    const result = await db.select().from(invoices);
+    return result;
+  }
+
+  async createInvoice(insertInvoice: InsertInvoice): Promise<Invoice> {
+    const result = await db.insert(invoices).values(insertInvoice).returning();
+    return result[0];
+  }
+
+  async updateInvoice(id: string, updateData: Partial<InsertInvoice>): Promise<Invoice | undefined> {
+    const result = await db
+      .update(invoices)
+      .set(updateData)
+      .where(eq(invoices.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteInvoice(id: string): Promise<boolean> {
+    const result = await db.delete(invoices).where(eq(invoices.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async getInvoiceLines(invoiceId: string): Promise<InvoiceLine[]> {
+    const result = await db.select().from(invoiceLines).where(eq(invoiceLines.invoiceId, invoiceId));
+    return result;
+  }
+
+  async addInvoiceLine(insertLine: InsertInvoiceLine): Promise<InvoiceLine> {
+    const result = await db.insert(invoiceLines).values(insertLine).returning();
+    return result[0];
+  }
+
+  async updateInvoiceLine(id: string, updateData: Partial<InsertInvoiceLine>): Promise<InvoiceLine | undefined> {
+    const result = await db
+      .update(invoiceLines)
+      .set(updateData)
+      .where(eq(invoiceLines.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteInvoiceLine(id: string): Promise<boolean> {
+    const result = await db.delete(invoiceLines).where(eq(invoiceLines.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async getExpense(id: string): Promise<Expense | undefined> {
+    const result = await db.select().from(expenses).where(eq(expenses.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getAllExpenses(filters?: any): Promise<Expense[]> {
+    const result = await db.select().from(expenses);
+    return result;
+  }
+
+  async createExpense(insertExpense: InsertExpense): Promise<Expense> {
+    const result = await db.insert(expenses).values(insertExpense).returning();
+    return result[0];
+  }
+
+  async updateExpense(id: string, updateData: Partial<InsertExpense>): Promise<Expense | undefined> {
+    const result = await db
+      .update(expenses)
+      .set(updateData)
+      .where(eq(expenses.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteExpense(id: string): Promise<boolean> {
+    const result = await db.delete(expenses).where(eq(expenses.id, id)).returning();
+    return result.length > 0;
   }
 }
 
