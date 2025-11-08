@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import MultiSelectTags from '@/components/MultiSelectTags';
 import {
   Sidebar,
   SidebarContent,
@@ -88,11 +89,27 @@ type Project = {
 };
 
 const formSchema = insertProjectSchema.extend({
-  tags: z.string().optional(),
   description: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
+
+const COMMON_TAGS = [
+  'Design',
+  'Development',
+  'Mobile',
+  'Integration',
+  'CRM',
+  'Analytics',
+  'Dashboard',
+  'Cloud',
+  'Infrastructure',
+  'Backend',
+  'Frontend',
+  'Testing',
+  'Security',
+  'Performance',
+];
 
 const DUMMY_PROJECTS: Project[] = [
   {
@@ -176,16 +193,22 @@ export default function Dashboard() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('All');
-  const [projects, setProjects] = useState<Project[]>(DUMMY_PROJECTS);
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [activeSidebarItem, setActiveSidebarItem] = useState('Projects');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   const { data: currentUser } = useQuery<{ user: UserWithoutPassword }>({
     queryKey: ['/api/auth/me'],
   });
+
+  const { data: projectsData, isLoading: projectsLoading } = useQuery<{ projects: Project[] }>({
+    queryKey: ['/api/projects'],
+  });
+
+  const projects = projectsData?.projects || [];
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -195,9 +218,74 @@ export default function Dashboard() {
       priority: 'Medium',
       budget: 0,
       status: 'Planned',
-      tags: '',
+      tags: [],
       description: '',
       deadline: new Date(),
+    },
+  });
+
+  const createProjectMutation = useMutation({
+    mutationFn: async (data: FormValues) => {
+      const response = await apiRequest('POST', '/api/projects', data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/projects'] });
+      toast({
+        title: 'Project created',
+        description: 'New project has been added successfully.',
+      });
+      setIsFormModalOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to create project',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const updateProjectMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<FormValues> }) => {
+      const response = await apiRequest('PATCH', `/api/projects/${id}`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/projects'] });
+      toast({
+        title: 'Project updated',
+        description: 'Project has been updated successfully.',
+      });
+      setIsFormModalOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to update project',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const deleteProjectMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await apiRequest('DELETE', `/api/projects/${id}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/projects'] });
+      toast({
+        title: 'Project deleted',
+        description: 'Project has been removed successfully.',
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to delete project',
+        variant: 'destructive',
+      });
     },
   });
 
@@ -211,10 +299,11 @@ export default function Dashboard() {
         priority: editingProject.priority,
         budget: editingProject.budget,
         status: editingProject.status,
-        tags: editingProject.tags?.join(', ') || '',
+        tags: editingProject.tags || [],
         description: editingProject.description || '',
         deadline: new Date(editingProject.deadline),
       });
+      setSelectedTags(editingProject.tags || []);
     } else if (!isFormModalOpen) {
       // Reset to defaults when closing
       form.reset({
@@ -223,10 +312,11 @@ export default function Dashboard() {
         priority: 'Medium',
         budget: 0,
         status: 'Planned',
-        tags: '',
+        tags: [],
         description: '',
         deadline: new Date(),
       });
+      setSelectedTags([]);
       setEditingProject(null);
     }
   }, [isFormModalOpen, editingProject, form]);
@@ -244,50 +334,16 @@ export default function Dashboard() {
   };
 
   const handleSaveProject = (data: FormValues) => {
+    const projectData = {
+      ...data,
+      tags: selectedTags,
+    };
+
     if (editingProject) {
-      // Update existing project
-      const updatedProject: Project = {
-        ...editingProject,
-        name: data.name,
-        manager: data.manager,
-        priority: data.priority,
-        budget: data.budget,
-        status: (data.status || 'Planned') as 'Planned' | 'In Progress' | 'Completed' | 'On Hold',
-        deadline: data.deadline,
-        tags: data.tags ? data.tags.split(',').map((t) => t.trim()) : [],
-        description: data.description || null,
-      };
-
-      setProjects(projects.map((p) => (p.id === editingProject.id ? updatedProject : p)));
-      toast({
-        title: 'Project updated',
-        description: 'Project has been updated successfully.',
-      });
+      updateProjectMutation.mutate({ id: editingProject.id, data: projectData });
     } else {
-      // Create new project
-      const newProject: Project = {
-        id: String(Date.now()),
-        name: data.name,
-        manager: data.manager,
-        priority: data.priority,
-        budget: data.budget,
-        budgetSpent: 0,
-        status: (data.status || 'Planned') as 'Planned' | 'In Progress' | 'Completed' | 'On Hold',
-        deadline: data.deadline,
-        progress: 0,
-        tags: data.tags ? data.tags.split(',').map((t) => t.trim()) : [],
-        description: data.description || null,
-      };
-
-      setProjects([...projects, newProject]);
-      toast({
-        title: 'Project created',
-        description: 'New project has been added successfully.',
-      });
+      createProjectMutation.mutate(projectData);
     }
-
-    setIsFormModalOpen(false);
-    setEditingProject(null);
   };
 
   const handleOpenAddModal = () => {
@@ -301,11 +357,7 @@ export default function Dashboard() {
   };
 
   const handleDeleteProject = (projectId: string) => {
-    setProjects(projects.filter((p) => p.id !== projectId));
-    toast({
-      title: 'Project deleted',
-      description: 'Project has been removed successfully.',
-    });
+    deleteProjectMutation.mutate(projectId);
   };
 
   const handleCardClick = (project: Project) => {
@@ -585,19 +637,18 @@ export default function Dashboard() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="tags"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tags (comma-separated)</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="e.g., Design, Development" data-testid="input-tags" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <FormItem>
+                <FormLabel>Tags</FormLabel>
+                <FormControl>
+                  <MultiSelectTags
+                    value={selectedTags}
+                    onChange={setSelectedTags}
+                    placeholder="Add tags..."
+                    suggestions={COMMON_TAGS}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
 
               <FormField
                 control={form.control}

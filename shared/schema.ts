@@ -56,7 +56,7 @@ export const insertProjectSchema = createInsertSchema(projects).omit({
   name: z.string().min(1, 'Project name is required'),
   manager: z.string().min(1, 'Project manager is required'),
   budget: z.number().min(0, 'Budget must be a positive number'),
-  deadline: z.date(),
+  deadline: z.coerce.date(),
 });
 
 export const selectProjectSchema = createSelectSchema(projects);

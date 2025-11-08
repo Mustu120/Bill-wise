@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "./db";
-import { users } from "@shared/schema";
-import type { User, InsertUser, UserWithoutPassword } from "@shared/schema";
+import { users, projects } from "@shared/schema";
+import type { User, InsertUser, UserWithoutPassword, Project, InsertProject } from "@shared/schema";
 import type { IStorage } from "./storage";
 
 export class PgStorage implements IStorage {
@@ -37,6 +37,45 @@ export class PgStorage implements IStorage {
       .where(eq(users.id, id))
       .returning();
     return result[0];
+  }
+
+  async getProject(id: string): Promise<Project | undefined> {
+    const result = await db.select().from(projects).where(eq(projects.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getAllProjects(): Promise<Project[]> {
+    const result = await db.select().from(projects);
+    return result;
+  }
+
+  async createProject(insertProject: InsertProject): Promise<Project> {
+    const projectData: any = { ...insertProject };
+    if (insertProject.status === 'Completed') {
+      projectData.progress = 100;
+    } else if (projectData.progress === undefined) {
+      projectData.progress = 0;
+    }
+    const result = await db.insert(projects).values(projectData).returning();
+    return result[0];
+  }
+
+  async updateProject(id: string, updateData: Partial<InsertProject>): Promise<Project | undefined> {
+    const projectData: any = { ...updateData };
+    if (updateData.status === 'Completed') {
+      projectData.progress = 100;
+    }
+    const result = await db
+      .update(projects)
+      .set(projectData)
+      .where(eq(projects.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteProject(id: string): Promise<boolean> {
+    const result = await db.delete(projects).where(eq(projects.id, id)).returning();
+    return result.length > 0;
   }
 }
 

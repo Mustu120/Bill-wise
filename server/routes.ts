@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import cookieParser from "cookie-parser";
 import { storage } from "./storage";
 import { hashPassword, comparePassword, generateToken, authenticate, requireAdmin, type AuthRequest } from "./auth";
-import { insertUserSchema } from "@shared/schema";
+import { insertUserSchema, insertProjectSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -185,6 +185,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error("Update role error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/projects", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const projects = await storage.getAllProjects();
+      return res.json({ projects });
+    } catch (error) {
+      console.error("Get projects error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/projects/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      const project = await storage.getProject(id);
+      
+      if (!project) {
+        return res.status(404).json({ error: "Project not found" });
+      }
+
+      return res.json({ project });
+    } catch (error) {
+      console.error("Get project error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/projects", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const validationResult = insertProjectSchema.safeParse(req.body);
+      
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ error: validationError.message });
+      }
+
+      const project = await storage.createProject(validationResult.data);
+
+      return res.status(201).json({
+        message: "Project created successfully",
+        project,
+      });
+    } catch (error) {
+      console.error("Create project error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.patch("/api/projects/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      const project = await storage.updateProject(id, req.body);
+      
+      if (!project) {
+        return res.status(404).json({ error: "Project not found" });
+      }
+
+      return res.json({
+        message: "Project updated successfully",
+        project,
+      });
+    } catch (error) {
+      console.error("Update project error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/projects/:id", authenticate, async (req: AuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      const deleted = await storage.deleteProject(id);
+      
+      if (!deleted) {
+        return res.status(404).json({ error: "Project not found" });
+      }
+
+      return res.json({
+        message: "Project deleted successfully",
+      });
+    } catch (error) {
+      console.error("Delete project error:", error);
       return res.status(500).json({ error: "Internal server error" });
     }
   });
