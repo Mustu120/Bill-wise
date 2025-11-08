@@ -190,14 +190,13 @@ const MANAGERS = [
 ];
 
 export default function Dashboard() {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const { toast } = useToast();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('All');
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const [activeSidebarItem, setActiveSidebarItem] = useState('Projects');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   const { data: currentUser } = useQuery<{ user: UserWithoutPassword }>({
@@ -408,11 +407,8 @@ export default function Dashboard() {
                   {sidebarItems.map((item) => (
                     <SidebarMenuItem key={item.label}>
                       <SidebarMenuButton
-                        onClick={() => {
-                          setActiveSidebarItem(item.label);
-                          setLocation(item.path);
-                        }}
-                        isActive={activeSidebarItem === item.label}
+                        onClick={() => setLocation(item.path)}
+                        isActive={location === item.path}
                         data-testid={`button-nav-${item.label.toLowerCase().replace(' ', '-')}`}
                       >
                         <item.icon className="h-5 w-5" />
