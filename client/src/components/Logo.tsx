@@ -1,14 +1,11 @@
-import logoImage from '@assets/generated_images/FlowChain_app_logo_772a0c96.png';
+import logoImage from '@assets/flowchain-logo.jpg';
 
 interface LogoProps {
   className?: string;
 }
 
-export default function Logo({ className = "h-12 w-auto" }: LogoProps) {
+export default function Logo({ className = "h-16 w-auto" }: LogoProps) {
   return (
-    <div className="flex items-center justify-center gap-3">
-      <img src={logoImage} alt="FlowChain Logo" className={className} />
-      <span className="text-2xl font-bold text-foreground">FlowChain</span>
-    </div>
+    <img src={logoImage} alt="FlowChain Logo" className={className} />
   );
 }

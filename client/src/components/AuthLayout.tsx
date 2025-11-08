@@ -23,7 +23,7 @@ export default function AuthLayout({ children, title, subtitle }: AuthLayoutProp
         {/* Content */}
         <div className="relative z-10 max-w-lg space-y-12 animate-fade-in">
           <div className="space-y-4">
-            <Logo className="h-14 w-auto brightness-0 invert" />
+            <Logo className="h-20 w-auto" />
             <h2 className="text-5xl font-bold text-white leading-tight">
               Streamline Your Workflow
             </h2>
