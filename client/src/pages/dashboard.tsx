@@ -6,17 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import MultiSelectTags from '@/components/MultiSelectTags';
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-} from '@/components/ui/sidebar';
-import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -50,17 +39,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-  LayoutGrid,
-  CheckSquare,
-  BarChart3,
-  Settings,
-  User,
   Plus,
   Calendar as CalendarIcon,
   MoreVertical,
   Pencil,
   Trash2,
   X,
+  User,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest, queryClient } from '@/lib/queryClient';
@@ -72,6 +57,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { UserWithoutPassword } from '@shared/schema';
 import ThemeToggle from '@/components/ThemeToggle';
+import { AppLayout } from '@/components/AppLayout';
 
 type StatusFilter = 'All' | 'Planned' | 'In Progress' | 'Completed' | 'On Hold';
 type Project = {
@@ -379,70 +365,26 @@ export default function Dashboard() {
     }
   };
 
-  const sidebarItems = [
-    { icon: LayoutGrid, label: 'Projects', path: '/dashboard' },
-    { icon: CheckSquare, label: 'Tasks', path: '/tasks' },
-    { icon: BarChart3, label: 'Analytics', path: '/analytics' },
-    { icon: Settings, label: 'Settings', path: '/settings' },
-    { icon: User, label: 'My profile', path: '/profile' },
-  ];
-
-  const style = {
-    '--sidebar-width': '16rem',
-  };
-
   return (
-    <SidebarProvider style={style as React.CSSProperties}>
-      <div className="flex h-screen w-full">
-        <Sidebar>
-          <div className="p-6 border-b">
-            <h1 className="text-2xl font-bold gradient-primary bg-clip-text text-transparent" data-testid="text-logo">
-              FlowChain
-            </h1>
-          </div>
-          <SidebarContent>
-            <SidebarGroup>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {sidebarItems.map((item) => (
-                    <SidebarMenuItem key={item.label}>
-                      <SidebarMenuButton
-                        onClick={() => setLocation(item.path)}
-                        isActive={location === item.path}
-                        data-testid={`button-nav-${item.label.toLowerCase().replace(' ', '-')}`}
-                      >
-                        <item.icon className="h-5 w-5" />
-                        <span>{item.label}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          </SidebarContent>
-        </Sidebar>
-
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Header */}
-          <header className="border-b bg-card p-4">
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <div className="flex items-center gap-3">
-                <SidebarTrigger data-testid="button-sidebar-toggle" />
-                <h2 className="text-2xl font-bold" data-testid="text-page-title">Projects</h2>
-              </div>
-              <div className="flex items-center gap-3">
-                <ThemeToggle />
-                <Button
-                  onClick={handleOpenAddModal}
-                  className="gap-2"
-                  data-testid="button-new-project"
-                >
-                  <Plus className="h-4 w-4" />
-                  New Project
-                </Button>
-              </div>
+    <AppLayout>
+      <div className="h-screen overflow-hidden flex flex-col">
+        {/* Header */}
+        <header className="border-b bg-card p-4">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <h2 className="text-2xl font-bold" data-testid="text-page-title">Projects</h2>
+            <div className="flex items-center gap-3">
+              <ThemeToggle />
+              <Button
+                onClick={handleOpenAddModal}
+                className="gap-2"
+                data-testid="button-new-project"
+              >
+                <Plus className="h-4 w-4" />
+                New Project
+              </Button>
             </div>
-          </header>
+          </div>
+        </header>
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-6 border-b">
@@ -610,7 +552,6 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-      </div>
 
       {/* Add/Edit Project Modal */}
       <Dialog open={isFormModalOpen} onOpenChange={setIsFormModalOpen}>
@@ -898,6 +839,6 @@ export default function Dashboard() {
           )}
         </DialogContent>
       </Dialog>
-    </SidebarProvider>
+    </AppLayout>
   );
 }

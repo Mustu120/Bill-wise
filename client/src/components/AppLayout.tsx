@@ -12,11 +12,11 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [location, setLocation] = useLocation();
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid, path: '/dashboard' },
+    { id: 'projects', label: 'Projects', icon: Folder, path: '/dashboard' },
     { id: 'tasks', label: 'Tasks', icon: CheckSquare, path: '/tasks' },
     { id: 'analytics', label: 'Analytics', icon: BarChart2, path: '/analytics' },
     { id: 'settings', label: 'Settings', icon: Settings, path: '/settings' },
-    { id: 'profile', label: 'My Profile', icon: User, path: '/profile' }
+    { id: 'profile', label: 'Profile', icon: User, path: '/profile' }
   ];
 
   const currentUser = {
