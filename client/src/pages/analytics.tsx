@@ -55,11 +55,11 @@ export default function AnalyticsPage() {
 
   return (
     <AppLayout>
-      <div className="h-screen overflow-auto">
+      <div className="h-screen overflow-auto bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto p-6 space-y-6">
         <div>
-          <h1 className="text-3xl font-bold" data-testid="page-title">Analytics Dashboard</h1>
-          <p className="text-muted-foreground">Monitor project performance and key metrics</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white" data-testid="page-title">Analytics Dashboard</h1>
+          <p className="text-gray-600 dark:text-gray-400">Monitor project performance and key metrics</p>
         </div>
 
         <FilterBar
