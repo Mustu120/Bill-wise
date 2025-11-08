@@ -1,0 +1,365 @@
+Build a Settings Module for a web app called FlowChain – Bill Management System using
+React (frontend), Node.js + Express (backend), and PostgreSQL (database).
+
+Authentication is already implemented.
+The logged-in user info (name and email) should display in the sidebar footer.
+Frontend styling should match the screenshot provided — clean, minimal, professional, and purple-accented.
+
+🎨 Layout & Navbar (Sidebar)
+
+Include a collapsible sidebar on the left with the exact structure and design shown in the screenshot:
+
+Brand Section (Top):
+
+App name: FlowChain
+
+Subtitle: Bill Management
+
+FlowChain logo/icon at top-left (use a simple square or logo placeholder)
+
+Menu Items:
+
+Dashboard (icon)
+
+Projects (icon)
+
+Tasks (icon, highlighted when active)
+
+Analytics (icon)
+
+Settings (icon)
+
+My Profile (icon)
+
+User Info (Bottom):
+
+Circular user avatar (initials, e.g., “JD”)
+
+User name
+
+Email
+
+Design:
+
+Purple highlight for the active tab (Tasks in screenshot example)
+
+Use lucide-react icons (LayoutGrid, Folder, CheckSquare, BarChart2, Settings, User)
+
+Implement navigation using React Router.
+
+⚙ Settings Module
+
+Under Settings, create six subsections accessible via internal tabs or list links:
+⿡ Sales Orders
+⿢ Purchase Orders
+⿣ Vendor Bills
+⿤ Products
+⿥ Expenses
+⿦ Invoices
+
+Each subsection should include:
+
+Toolbar: Search | Filter | Group By | Create New
+
+List View: Table view of existing records
+
+Create/Edit View: Detailed form view (based on wireframes provided)
+
+🧭 Toolbar Behavior
+
+Search → keyword search (by name/code/customer/vendor/project/product)
+
+Filter → dropdown filters (project, customer/vendor, date range, status)
+
+Group By → dropdown (project, partner, month, product, status)
+
+Create New → opens the Create/Edit page for the respective model
+
+Toolbar should be sticky at the top and auto-refresh the list on filter change.
+
+🧱 Subsection Specifications
+⿡ Sales Order
+
+Header Buttons: Create Invoice, Confirm, Cancel
+
+Fields:
+
+Order Code (auto-generated, e.g., SO001)
+
+Customer (dropdown)
+
+Project (dropdown)
+
+Order Lines (table with Product, Quantity, Unit, Unit Price, Taxes %, Amount)
+
+Auto totals: Untaxed Amount + Total
+
+⿢ Purchase Order
+
+Header Buttons: Create Bills, Confirm, Cancel
+
+Fields:
+
+PO Code (auto-generated, e.g., PO001)
+
+Vendor (dropdown)
+
+Project
+
+Order Lines (same as Sales Order)
+
+Totals at footer
+
+⿣ Vendor Bills
+
+Header Buttons: Confirm, Cancel
+
+Fields:
+
+Bill Number
+
+Vendor
+
+Project
+
+Invoice Lines (Product, Quantity, Unit Price, Taxes %, Amount)
+
+Totals
+
+⿤ Customer Invoices
+
+Header Buttons: Confirm, Cancel
+
+Fields:
+
+Invoice Number
+
+Customer
+
+Project (optional)
+
+Invoice Lines (same as Vendor Bills)
+
+Totals
+
+⿥ Products
+
+Fields:
+
+Product Name
+
+Checkboxes: Sales / Purchase / Expenses
+
+Sales Price
+
+Sales Taxes (multi-select dropdown)
+
+Cost
+
+⿦ Expenses (with OCR Auto-fill)
+
+Fields:
+
+Name
+
+Expense Period (date range)
+
+Project (dropdown)
+
+Image Upload (button + preview)
+
+Description (multiline)
+
+When an image (invoice, bill, or receipt) is uploaded:
+
+Automatically extract data using OCR (Tesseract.js).
+
+Auto-fill fields like:
+
+Name → inferred from filename or OCR text
+
+Expense Period → inferred from detected date
+
+Project → matched by keywords from project list
+
+Description → from OCR summary
+
+Show toast: “Auto-filled details using uploaded image.”
+
+Users can manually edit any field afterward.
+
+🗄 Backend (Node.js + Express + PostgreSQL)
+
+Use Express with:
+
+pg for PostgreSQL
+
+multer for file uploads
+
+tesseract.js for OCR processing
+
+📦 PostgreSQL Schema
+CREATE TABLE partners (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255),
+  type VARCHAR(20) CHECK (type IN ('customer','vendor','both')) DEFAULT 'both'
+);
+
+CREATE TABLE projects (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255)
+);
+
+CREATE TABLE products (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255),
+  for_sales BOOLEAN DEFAULT FALSE,
+  for_purchase BOOLEAN DEFAULT FALSE,
+  for_expenses BOOLEAN DEFAULT FALSE,
+  sales_price NUMERIC(12,2) DEFAULT 0,
+  cost NUMERIC(12,2) DEFAULT 0
+);
+
+CREATE TABLE taxes (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100),
+  rate NUMERIC(6,3)
+);
+
+CREATE TABLE sales_orders (
+  id SERIAL PRIMARY KEY,
+  code VARCHAR(30) UNIQUE,
+  customer_id INT REFERENCES partners(id),
+  project_id INT REFERENCES projects(id),
+  status VARCHAR(20) DEFAULT 'Draft',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE sales_order_lines (
+  id SERIAL PRIMARY KEY,
+  order_id INT REFERENCES sales_orders(id),
+  product_id INT REFERENCES products(id),
+  quantity NUMERIC(12,3),
+  unit VARCHAR(20),
+  unit_price NUMERIC(12,2),
+  tax_ids INT[],
+  amount NUMERIC(12,2)
+);
+
+CREATE TABLE purchase_orders (
+  id SERIAL PRIMARY KEY,
+  code VARCHAR(30) UNIQUE,
+  vendor_id INT REFERENCES partners(id),
+  project_id INT REFERENCES projects(id),
+  status VARCHAR(20) DEFAULT 'Draft'
+);
+
+CREATE TABLE invoices (
+  id SERIAL PRIMARY KEY,
+  number VARCHAR(40),
+  type VARCHAR(20) CHECK (type IN ('customer','vendor')),
+  partner_id INT REFERENCES partners(id),
+  project_id INT REFERENCES projects(id),
+  status VARCHAR(20) DEFAULT 'Draft'
+);
+
+CREATE TABLE invoice_lines (
+  id SERIAL PRIMARY KEY,
+  invoice_id INT REFERENCES invoices(id),
+  product_id INT REFERENCES products(id),
+  quantity NUMERIC(12,3),
+  unit_price NUMERIC(12,2),
+  tax_ids INT[],
+  amount NUMERIC(12,2)
+);
+
+CREATE TABLE expenses (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255),
+  project_id INT REFERENCES projects(id),
+  period_start DATE,
+  period_end DATE,
+  image_url TEXT,
+  description TEXT,
+  ocr_data JSONB,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+🧩 Backend Routes
+File Upload + OCR
+
+POST /api/upload/ocr
+
+Uploads image
+
+Performs OCR using Tesseract.js
+
+Extracts name, dates, description, and project keywords
+
+Returns structured data:
+
+{
+  "name": "Vendor Receipt - Office Supplies",
+  "period_start": "2025-11-01",
+  "period_end": "2025-11-01",
+  "description": "Purchase of materials from Vendor X",
+  "project_id": 2
+}
+
+Standard CRUD Endpoints
+
+Each model (Sales Orders, Purchases, Vendor Bills, Products, Expenses, Invoices) has:
+
+GET /api/settings/{model}
+
+GET /api/settings/{model}/:id
+
+POST /api/settings/{model}
+
+PUT /api/settings/{model}/:id
+
+Filter & group support via query params (search, project, status, groupBy, etc.)
+
+🧰 Frontend Components Summary
+
+Sidebar.jsx → matches the attached FlowChain sidebar image exactly
+
+Toolbar.jsx → Search / Filter / Group By / Create New
+
+DataTable.jsx → reusable for list views
+
+Form.jsx (per subsection) → fields per section above
+
+FileUpload.jsx → handles image upload & triggers OCR endpoint
+
+Use Axios for all API calls
+
+🧾 Deliverables
+
+Working Settings module with 6 fully functional subsections
+
+Auto-fill expense fields from uploaded image using OCR
+
+PostgreSQL backend and Express APIs
+
+Sidebar exactly matching the attached screenshot
+
+Clean, responsive UI styled with Tailwind
+
+Run with:
+
+Frontend: npm run dev
+
+Backend: npm run server
+
+🧱 Stack Summary
+
+Frontend: React + Tailwind CSS + Axios
+
+Backend: Node.js + Express + Multer + Tesseract.js + pg
+
+Database: PostgreSQL
+
+Auth: Already implemented
+
+Design: Based on attached FlowChain sidebar (purple highlight, modern layout)
