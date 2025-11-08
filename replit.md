@@ -2,9 +2,25 @@
 
 ## Overview
 
-FlowChain is a secure, role-based authentication platform built for project management and team collaboration. The application provides a clean authentication flow with signup, login, and user session management capabilities. It serves as a foundation for a productivity application with a security-first approach, implementing JWT-based authentication and role-based access control.
+FlowChain is a secure, role-based authentication platform built for project management and team collaboration. The application provides admin-controlled user management with a clean authentication flow implementing JWT-based authentication and role-based access control.
 
-The platform supports four user roles: Project Manager, Team Member, Finance, and Admin. It features a Material Design 3-inspired interface using shadcn/ui components with a neutral color scheme optimized for professional productivity workflows.
+The platform supports four user roles: Project Manager, Team Member, Finance, and Admin. **Only administrators can create new user accounts and assign roles**, ensuring controlled access to the system. It features a Material Design 3-inspired interface using shadcn/ui components with a neutral color scheme optimized for professional productivity workflows.
+
+## Recent Changes (November 2025)
+
+- **Removed public signup**: Users can no longer self-register; only admins can create accounts
+- **Admin-only user management**: Implemented dedicated admin dashboard for user creation and role management
+- **Role-based routing**: Admins are redirected to `/admin`, regular users to `/dashboard` after login
+- **Protected admin routes**: All user management endpoints require admin authentication
+
+## Initial Admin Access
+
+A system administrator account has been created for initial access:
+- **Email**: admin123@gmail.com
+- **Password**: @Admin1212
+- **Dashboard**: After login, admins are automatically redirected to `/admin` where they can create and manage users
+
+To create additional users, log in as admin and use the "Create User" button in the admin dashboard.
 
 ## User Preferences
 
