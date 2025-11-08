@@ -1,5 +1,4 @@
 import { useLocation } from 'wouter';
-import { useState } from 'react';
 import AuthLayout from '@/components/AuthLayout';
 import SignupForm from '@/components/SignupForm';
 import { useToast } from '@/hooks/use-toast';
@@ -11,11 +10,8 @@ export default function SignupPage() {
 
   const handleSignup = async (data: any) => {
     try {
-      const response = await apiRequest('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
+      const response = await apiRequest('POST', '/api/auth/signup', data);
+      const result = await response.json();
 
       toast({
         title: 'Account created!',

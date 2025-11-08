@@ -19,8 +19,9 @@ export default function HomePage() {
   useEffect(() => {
     async function checkAuth() {
       try {
-        const response = await apiRequest('/api/auth/me');
-        setUser(response.user);
+        const response = await apiRequest('GET', '/api/auth/me');
+        const result = await response.json();
+        setUser(result.user);
       } catch (error) {
         setLocation('/login');
       } finally {
@@ -32,9 +33,7 @@ export default function HomePage() {
 
   const handleLogout = async () => {
     try {
-      await apiRequest('/api/auth/logout', {
-        method: 'POST',
-      });
+      await apiRequest('POST', '/api/auth/logout');
       toast({
         title: 'Logged out successfully',
       });

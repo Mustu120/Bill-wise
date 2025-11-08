@@ -10,15 +10,12 @@ export default function LoginPage() {
 
   const handleLogin = async (data: any) => {
     try {
-      const response = await apiRequest('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
+      const response = await apiRequest('POST', '/api/auth/login', data);
+      const result = await response.json();
 
       toast({
         title: 'Login successful!',
-        description: `Welcome back, ${response.user.name}!`,
+        description: `Welcome back, ${result.user.name}!`,
       });
 
       setTimeout(() => {
