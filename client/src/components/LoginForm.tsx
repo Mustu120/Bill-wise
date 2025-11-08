@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Eye, EyeOff, XCircle, Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
-import { Link } from 'wouter';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -117,29 +116,20 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
         )}
       </div>
 
-      {/* Remember Me & Forgot Password */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-2.5">
-          <Checkbox
-            id="rememberMe"
-            checked={rememberMe}
-            onCheckedChange={(checked) => {
-              setRememberMe(checked as boolean);
-              setValue('rememberMe', checked as boolean);
-            }}
-            data-testid="checkbox-remember-me"
-          />
-          <Label htmlFor="rememberMe" className="text-sm font-normal cursor-pointer">
-            Remember me
-          </Label>
-        </div>
-        <Link
-          href="/forgot-password"
-          className="text-sm text-primary hover:text-primary/80 transition-smooth font-medium"
-          data-testid="link-forgot-password"
-        >
-          Forgot password?
-        </Link>
+      {/* Remember Me */}
+      <div className="flex items-center gap-2.5">
+        <Checkbox
+          id="rememberMe"
+          checked={rememberMe}
+          onCheckedChange={(checked) => {
+            setRememberMe(checked as boolean);
+            setValue('rememberMe', checked as boolean);
+          }}
+          data-testid="checkbox-remember-me"
+        />
+        <Label htmlFor="rememberMe" className="text-sm font-normal cursor-pointer">
+          Remember me
+        </Label>
       </div>
 
       {/* Submit Button */}
