@@ -18,8 +18,9 @@ export default function LoginPage() {
         description: `Welcome back, ${result.user.name}!`,
       });
 
+      const redirectPath = result.user.role === 'admin' ? '/admin' : '/dashboard';
       setTimeout(() => {
-        setLocation('/');
+        setLocation(redirectPath);
       }, 500);
     } catch (error: any) {
       toast({

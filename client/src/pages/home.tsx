@@ -35,7 +35,12 @@ export default function HomePage() {
       try {
         const response = await apiRequest('GET', '/api/auth/me');
         const result = await response.json();
-        setUser(result.user);
+        
+        if (result.user.role === 'admin') {
+          setLocation('/admin');
+        } else {
+          setLocation('/dashboard');
+        }
       } catch (error) {
         setLocation('/login');
       } finally {

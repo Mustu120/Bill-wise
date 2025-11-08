@@ -164,17 +164,6 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
         </span>
       </Button>
 
-      {/* Sign Up Link */}
-      <p className="text-center text-sm text-muted-foreground pt-2">
-        Need an account?{' '}
-        <Link 
-          href="/signup" 
-          className="text-primary hover:text-primary/80 transition-smooth font-medium" 
-          data-testid="link-signup"
-        >
-          Sign up
-        </Link>
-      </p>
     </form>
   );
 }

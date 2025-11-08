@@ -2,14 +2,14 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import cookieParser from "cookie-parser";
 import { storage } from "./storage";
-import { hashPassword, comparePassword, generateToken, authenticate, type AuthRequest } from "./auth";
+import { hashPassword, comparePassword, generateToken, authenticate, requireAdmin, type AuthRequest } from "./auth";
 import { insertUserSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   app.use(cookieParser());
 
-  app.post("/api/auth/signup", async (req, res) => {
+  app.post("/api/admin/users", authenticate, requireAdmin, async (req: AuthRequest, res) => {
     try {
       const validationResult = insertUserSchema.safeParse(req.body);
       
@@ -91,6 +91,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/auth/me", authenticate, (req: AuthRequest, res) => {
     return res.json({ user: req.user });
+  });
+
+  app.get("/api/admin/users", authenticate, requireAdmin, async (req: AuthRequest, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      return res.json({ users });
+    } catch (error) {
+      console.error("Get users error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.patch("/api/admin/users/:id/role", authenticate, requireAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      const { role } = req.body;
+
+      if (!role || !["project_manager", "team_member", "finance", "admin"].includes(role)) {
+        return res.status(400).json({ error: "Invalid role" });
+      }
+
+      const user = await storage.updateUserRole(id, role);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const { password: _, ...userWithoutPassword } = user;
+      return res.json({ 
+        message: "User role updated successfully",
+        user: userWithoutPassword 
+      });
+    } catch (error) {
+      console.error("Update role error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   const httpServer = createServer(app);
