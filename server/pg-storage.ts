@@ -406,14 +406,28 @@ export class PgStorage implements IStorage {
   }
 
   async createProduct(insertProduct: InsertProduct): Promise<Product> {
-    const result = await db.insert(products).values(insertProduct).returning();
+    const productData: any = { ...insertProduct };
+    if (productData.salesPrice !== undefined && typeof productData.salesPrice === 'number') {
+      productData.salesPrice = productData.salesPrice.toFixed(2);
+    }
+    if (productData.cost !== undefined && typeof productData.cost === 'number') {
+      productData.cost = productData.cost.toFixed(2);
+    }
+    const result = await db.insert(products).values(productData).returning();
     return result[0];
   }
 
   async updateProduct(id: string, updateData: Partial<InsertProduct>): Promise<Product | undefined> {
+    const productData: any = { ...updateData };
+    if (productData.salesPrice !== undefined && typeof productData.salesPrice === 'number') {
+      productData.salesPrice = productData.salesPrice.toFixed(2);
+    }
+    if (productData.cost !== undefined && typeof productData.cost === 'number') {
+      productData.cost = productData.cost.toFixed(2);
+    }
     const result = await db
       .update(products)
-      .set(updateData)
+      .set(productData)
       .where(eq(products.id, id))
       .returning();
     return result[0];
@@ -435,14 +449,22 @@ export class PgStorage implements IStorage {
   }
 
   async createTax(insertTax: InsertTax): Promise<Tax> {
-    const result = await db.insert(taxes).values(insertTax).returning();
+    const taxData: any = { ...insertTax };
+    if (taxData.rate !== undefined && typeof taxData.rate === 'number') {
+      taxData.rate = taxData.rate.toFixed(3);
+    }
+    const result = await db.insert(taxes).values(taxData).returning();
     return result[0];
   }
 
   async updateTax(id: string, updateData: Partial<InsertTax>): Promise<Tax | undefined> {
+    const taxData: any = { ...updateData };
+    if (taxData.rate !== undefined && typeof taxData.rate === 'number') {
+      taxData.rate = taxData.rate.toFixed(3);
+    }
     const result = await db
       .update(taxes)
-      .set(updateData)
+      .set(taxData)
       .where(eq(taxes.id, id))
       .returning();
     return result[0];
@@ -464,14 +486,28 @@ export class PgStorage implements IStorage {
   }
 
   async createSalesOrder(insertOrder: InsertSalesOrder): Promise<SalesOrder> {
-    const result = await db.insert(salesOrders).values(insertOrder).returning();
+    const orderData: any = { ...insertOrder };
+    if (orderData.untaxedAmount !== undefined && typeof orderData.untaxedAmount === 'number') {
+      orderData.untaxedAmount = orderData.untaxedAmount.toFixed(2);
+    }
+    if (orderData.totalAmount !== undefined && typeof orderData.totalAmount === 'number') {
+      orderData.totalAmount = orderData.totalAmount.toFixed(2);
+    }
+    const result = await db.insert(salesOrders).values(orderData).returning();
     return result[0];
   }
 
   async updateSalesOrder(id: string, updateData: Partial<InsertSalesOrder>): Promise<SalesOrder | undefined> {
+    const orderData: any = { ...updateData };
+    if (orderData.untaxedAmount !== undefined && typeof orderData.untaxedAmount === 'number') {
+      orderData.untaxedAmount = orderData.untaxedAmount.toFixed(2);
+    }
+    if (orderData.totalAmount !== undefined && typeof orderData.totalAmount === 'number') {
+      orderData.totalAmount = orderData.totalAmount.toFixed(2);
+    }
     const result = await db
       .update(salesOrders)
-      .set(updateData)
+      .set(orderData)
       .where(eq(salesOrders.id, id))
       .returning();
     return result[0];
@@ -488,14 +524,34 @@ export class PgStorage implements IStorage {
   }
 
   async addSalesOrderLine(insertLine: InsertSalesOrderLine): Promise<SalesOrderLine> {
-    const result = await db.insert(salesOrderLines).values(insertLine).returning();
+    const lineData: any = { ...insertLine };
+    if (lineData.quantity !== undefined && typeof lineData.quantity === 'number') {
+      lineData.quantity = lineData.quantity.toFixed(3);
+    }
+    if (lineData.unitPrice !== undefined && typeof lineData.unitPrice === 'number') {
+      lineData.unitPrice = lineData.unitPrice.toFixed(2);
+    }
+    if (lineData.amount !== undefined && typeof lineData.amount === 'number') {
+      lineData.amount = lineData.amount.toFixed(2);
+    }
+    const result = await db.insert(salesOrderLines).values(lineData).returning();
     return result[0];
   }
 
   async updateSalesOrderLine(id: string, updateData: Partial<InsertSalesOrderLine>): Promise<SalesOrderLine | undefined> {
+    const lineData: any = { ...updateData };
+    if (lineData.quantity !== undefined && typeof lineData.quantity === 'number') {
+      lineData.quantity = lineData.quantity.toFixed(3);
+    }
+    if (lineData.unitPrice !== undefined && typeof lineData.unitPrice === 'number') {
+      lineData.unitPrice = lineData.unitPrice.toFixed(2);
+    }
+    if (lineData.amount !== undefined && typeof lineData.amount === 'number') {
+      lineData.amount = lineData.amount.toFixed(2);
+    }
     const result = await db
       .update(salesOrderLines)
-      .set(updateData)
+      .set(lineData)
       .where(eq(salesOrderLines.id, id))
       .returning();
     return result[0];
@@ -517,14 +573,28 @@ export class PgStorage implements IStorage {
   }
 
   async createPurchaseOrder(insertOrder: InsertPurchaseOrder): Promise<PurchaseOrder> {
-    const result = await db.insert(purchaseOrders).values(insertOrder).returning();
+    const orderData: any = { ...insertOrder };
+    if (orderData.untaxedAmount !== undefined && typeof orderData.untaxedAmount === 'number') {
+      orderData.untaxedAmount = orderData.untaxedAmount.toFixed(2);
+    }
+    if (orderData.totalAmount !== undefined && typeof orderData.totalAmount === 'number') {
+      orderData.totalAmount = orderData.totalAmount.toFixed(2);
+    }
+    const result = await db.insert(purchaseOrders).values(orderData).returning();
     return result[0];
   }
 
   async updatePurchaseOrder(id: string, updateData: Partial<InsertPurchaseOrder>): Promise<PurchaseOrder | undefined> {
+    const orderData: any = { ...updateData };
+    if (orderData.untaxedAmount !== undefined && typeof orderData.untaxedAmount === 'number') {
+      orderData.untaxedAmount = orderData.untaxedAmount.toFixed(2);
+    }
+    if (orderData.totalAmount !== undefined && typeof orderData.totalAmount === 'number') {
+      orderData.totalAmount = orderData.totalAmount.toFixed(2);
+    }
     const result = await db
       .update(purchaseOrders)
-      .set(updateData)
+      .set(orderData)
       .where(eq(purchaseOrders.id, id))
       .returning();
     return result[0];
@@ -541,14 +611,34 @@ export class PgStorage implements IStorage {
   }
 
   async addPurchaseOrderLine(insertLine: InsertPurchaseOrderLine): Promise<PurchaseOrderLine> {
-    const result = await db.insert(purchaseOrderLines).values(insertLine).returning();
+    const lineData: any = { ...insertLine };
+    if (lineData.quantity !== undefined && typeof lineData.quantity === 'number') {
+      lineData.quantity = lineData.quantity.toFixed(3);
+    }
+    if (lineData.unitPrice !== undefined && typeof lineData.unitPrice === 'number') {
+      lineData.unitPrice = lineData.unitPrice.toFixed(2);
+    }
+    if (lineData.amount !== undefined && typeof lineData.amount === 'number') {
+      lineData.amount = lineData.amount.toFixed(2);
+    }
+    const result = await db.insert(purchaseOrderLines).values(lineData).returning();
     return result[0];
   }
 
   async updatePurchaseOrderLine(id: string, updateData: Partial<InsertPurchaseOrderLine>): Promise<PurchaseOrderLine | undefined> {
+    const lineData: any = { ...updateData };
+    if (lineData.quantity !== undefined && typeof lineData.quantity === 'number') {
+      lineData.quantity = lineData.quantity.toFixed(3);
+    }
+    if (lineData.unitPrice !== undefined && typeof lineData.unitPrice === 'number') {
+      lineData.unitPrice = lineData.unitPrice.toFixed(2);
+    }
+    if (lineData.amount !== undefined && typeof lineData.amount === 'number') {
+      lineData.amount = lineData.amount.toFixed(2);
+    }
     const result = await db
       .update(purchaseOrderLines)
-      .set(updateData)
+      .set(lineData)
       .where(eq(purchaseOrderLines.id, id))
       .returning();
     return result[0];
@@ -570,14 +660,28 @@ export class PgStorage implements IStorage {
   }
 
   async createInvoice(insertInvoice: InsertInvoice): Promise<Invoice> {
-    const result = await db.insert(invoices).values(insertInvoice).returning();
+    const invoiceData: any = { ...insertInvoice };
+    if (invoiceData.untaxedAmount !== undefined && typeof invoiceData.untaxedAmount === 'number') {
+      invoiceData.untaxedAmount = invoiceData.untaxedAmount.toFixed(2);
+    }
+    if (invoiceData.totalAmount !== undefined && typeof invoiceData.totalAmount === 'number') {
+      invoiceData.totalAmount = invoiceData.totalAmount.toFixed(2);
+    }
+    const result = await db.insert(invoices).values(invoiceData).returning();
     return result[0];
   }
 
   async updateInvoice(id: string, updateData: Partial<InsertInvoice>): Promise<Invoice | undefined> {
+    const invoiceData: any = { ...updateData };
+    if (invoiceData.untaxedAmount !== undefined && typeof invoiceData.untaxedAmount === 'number') {
+      invoiceData.untaxedAmount = invoiceData.untaxedAmount.toFixed(2);
+    }
+    if (invoiceData.totalAmount !== undefined && typeof invoiceData.totalAmount === 'number') {
+      invoiceData.totalAmount = invoiceData.totalAmount.toFixed(2);
+    }
     const result = await db
       .update(invoices)
-      .set(updateData)
+      .set(invoiceData)
       .where(eq(invoices.id, id))
       .returning();
     return result[0];
@@ -594,14 +698,34 @@ export class PgStorage implements IStorage {
   }
 
   async addInvoiceLine(insertLine: InsertInvoiceLine): Promise<InvoiceLine> {
-    const result = await db.insert(invoiceLines).values(insertLine).returning();
+    const lineData: any = { ...insertLine };
+    if (lineData.quantity !== undefined && typeof lineData.quantity === 'number') {
+      lineData.quantity = lineData.quantity.toFixed(3);
+    }
+    if (lineData.unitPrice !== undefined && typeof lineData.unitPrice === 'number') {
+      lineData.unitPrice = lineData.unitPrice.toFixed(2);
+    }
+    if (lineData.amount !== undefined && typeof lineData.amount === 'number') {
+      lineData.amount = lineData.amount.toFixed(2);
+    }
+    const result = await db.insert(invoiceLines).values(lineData).returning();
     return result[0];
   }
 
   async updateInvoiceLine(id: string, updateData: Partial<InsertInvoiceLine>): Promise<InvoiceLine | undefined> {
+    const lineData: any = { ...updateData };
+    if (lineData.quantity !== undefined && typeof lineData.quantity === 'number') {
+      lineData.quantity = lineData.quantity.toFixed(3);
+    }
+    if (lineData.unitPrice !== undefined && typeof lineData.unitPrice === 'number') {
+      lineData.unitPrice = lineData.unitPrice.toFixed(2);
+    }
+    if (lineData.amount !== undefined && typeof lineData.amount === 'number') {
+      lineData.amount = lineData.amount.toFixed(2);
+    }
     const result = await db
       .update(invoiceLines)
-      .set(updateData)
+      .set(lineData)
       .where(eq(invoiceLines.id, id))
       .returning();
     return result[0];
@@ -623,14 +747,40 @@ export class PgStorage implements IStorage {
   }
 
   async createExpense(insertExpense: InsertExpense): Promise<Expense> {
-    const result = await db.insert(expenses).values(insertExpense).returning();
+    const expenseData: any = { ...insertExpense };
+    if (expenseData.periodStart) {
+      const date = new Date(expenseData.periodStart);
+      if (!isNaN(date.getTime())) {
+        expenseData.periodStart = date.toISOString().split('T')[0];
+      }
+    }
+    if (expenseData.periodEnd) {
+      const date = new Date(expenseData.periodEnd);
+      if (!isNaN(date.getTime())) {
+        expenseData.periodEnd = date.toISOString().split('T')[0];
+      }
+    }
+    const result = await db.insert(expenses).values(expenseData).returning();
     return result[0];
   }
 
   async updateExpense(id: string, updateData: Partial<InsertExpense>): Promise<Expense | undefined> {
+    const expenseData: any = { ...updateData };
+    if (expenseData.periodStart) {
+      const date = new Date(expenseData.periodStart);
+      if (!isNaN(date.getTime())) {
+        expenseData.periodStart = date.toISOString().split('T')[0];
+      }
+    }
+    if (expenseData.periodEnd) {
+      const date = new Date(expenseData.periodEnd);
+      if (!isNaN(date.getTime())) {
+        expenseData.periodEnd = date.toISOString().split('T')[0];
+      }
+    }
     const result = await db
       .update(expenses)
-      .set(updateData)
+      .set(expenseData)
       .where(eq(expenses.id, id))
       .returning();
     return result[0];
